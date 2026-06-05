@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 우리 반 스마트 도구상자</title>
+    <style>
+        :root {
+            --bg-color: #fdf4ff; --primary: #ec4899; --primary-hover: #db2777;
+            --secondary: #fef08a; --secondary-hover: #fde047; --accent: #3b82f6;
+            --text-main: #334155; --text-muted: #64748b; --border: #fbcfe8; --box-bg: #ffffff;
+        }
+        body { margin: 0; font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* 네비게이션 헤더 */
+        header { background: var(--box-bg); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.03); z-index: 10; }
+        h1 { margin: 0; font-size: 26px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .tab-menu { display: flex; gap: 12px; flex: 1; justify-content: center; margin: 0 20px; }
+        .tab-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: transparent; color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .tab-btn:hover { background: #fce7f3; color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(236, 72, 153, 0.3); }
+        .settings-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: var(--text-main); color: white; border-radius: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .settings-btn:hover { background: #1e293b; transform: translateY(-2px); }
+
+        /* 메인 컨텐츠 영역 */
+        main { flex: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; }
+        .section-container { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .section-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* 공통 컴포넌트 */
+        .card { background: var(--box-bg); padding: 40px; border-radius: 24px; border: 3px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        button.btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        button.btn-primary { background: var(--primary); color: white; } button.btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
+        button.btn-secondary { background: var(--secondary); color: var(--text-main); } button.btn-secondary:hover { background: var(--secondary-hover); }
+        button.btn-blue { background: var(--accent); color: white; } button.btn-blue:hover { background: #2563eb; transform: scale(1.05); }
+        button.btn-danger { background: #ef4444; color: white; } button.btn-danger:hover { background: #dc2626; }
+        input, select, textarea { padding: 12px; font-size: 15px; border: 2px solid var(--border); border-radius: 10px; outline: none; font-weight: bold; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+        /* 1. 랜덤 뽑기 탭 (단정한 포켓볼 스타일 캡슐 머신 CSS) */
+        .gacha-machine { width: 260px; margin: 0 auto 20px auto; position: relative; }
+        .gacha-dome { width: 240px; height: 240px; background: rgba(255,255,255,0.9); border: 8px solid #cbd5e1; border-radius: 50%; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 -20px 30px rgba(0,0,0,0.1); z-index: 2; }
+        
+        /* 🚨 디자인 수정: 단정한 캡슐 (흰 동그라미 삭제, 두꺼운 띠) */
+        .gacha-ball { 
+            width: 45px; height: 45px; border-radius: 50%; position: absolute;
+            background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%);
+            border: 3px solid #1e293b; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .gacha-ball::after {
+            content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: #1e293b; transform: translateY(-50%);
+        }
+
+        .gacha-base { width: 260px; height: 200px; background: var(--primary); border-radius: 20px; margin-top: -30px; position: relative; z-index: 1; padding-top: 50px; box-sizing: border-box; box-shadow: 0 15px 25px rgba(236,72,153,0.3); }
+        .gacha-dial { width: 70px; height: 70px; background: var(--secondary); border: 6px solid #ca8a04; border-radius: 50%; margin: 0 auto; cursor: pointer; transition: 0.3s; display:flex; justify-content:center; align-items:center; font-size:24px; }
+        .gacha-dial:hover { transform: scale(1.1); }
+        .gacha-dial.spinning { animation: spinDial 0.5s linear infinite; pointer-events: none; }
+        .gacha-slot { width: 90px; height: 60px; background: #1e293b; border-radius: 10px; margin: 20px auto 0; position: relative; }
+        
+        .gacha-capsule { 
+            width: 50px; height: 50px; border-radius: 50%; position: absolute; left: 20px; bottom: 5px; opacity: 0; display: none;
+            background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%);
+            border: 3px solid #1e293b; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .gacha-capsule::after {
+            content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: #1e293b; transform: translateY(-50%);
+        }
+
+        @keyframes spinDial { 100% { transform: rotate(360deg); } }
+        @keyframes dropCapsule { 0% { transform: translateY(-50px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        
+        .gacha-result { font-size: 60px; font-weight: 900; color: var(--accent); min-height: 90px; margin-top: 10px; text-shadow: 2px 2px 0px #bfdbfe; transition: 0.3s; transform: scale(0); opacity: 0; }
+        .gacha-result.show { transform: scale(1); opacity: 1; }
+
+        /* 2. 자리 배치 탭 */
+        .desk-grid { display: grid; gap: 16px; justify-content: center; margin-top: 20px; padding: 40px; background: #e0f2fe; border-radius: 24px; border: 4px solid #bae6fd; }
+        .teacher-desk { background: var(--text-main); color: white; padding: 16px 80px; border-radius: 12px; font-weight: 900; font-size: 20px; margin: 0 auto 30px auto; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .desk { 
+            box-sizing: border-box; width: 110px; height: 65px; background: white; border: 3px solid #93c5fd; border-radius: 12px; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 18px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; cursor: pointer; user-select: none; position: relative; 
+        }
+        .desk:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.1); border-color: var(--accent); }
+        .desk.empty { background: transparent; border: 3px dashed #93c5fd; color: transparent; box-shadow: none; }
+        .desk.paired { margin-right: 24px; }
+        .desk.selected { border: 4px solid var(--primary); background: #fdf2f8; transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3); }
+
+        /* 3. 타이머 탭 */
+        .timer-display { font-size: 200px; font-weight: 900; color: var(--text-main); line-height: 1; text-shadow: 5px 5px 0px var(--secondary); margin: 30px 0; font-variant-numeric: tabular-nums; }
+        .timer-quick-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .timer-quick-btns button { font-size: 18px; padding: 10px 20px; border-radius: 20px; }
+        .timer-main-btns { display: flex; gap: 15px; justify-content: center; }
+
+        /* 4. 단정한 1인 1역 당번 배정 */
+        .duty-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 30px; text-align: left; }
+        .duty-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.2s; }
+        .duty-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .duty-role { font-weight: 900; color: var(--accent); font-size: 16px; }
+        .duty-name { font-weight: 800; color: var(--text-main); font-size: 18px; background: #f1f5f9; padding: 6px 16px; border-radius: 8px; }
+
+        /* 통합 설정 모달 및 + 버튼 디자인 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--box-bg); padding: 30px; border-radius: 24px; width: 700px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 4px solid var(--border); }
+        .settings-group { background: #fdf2f8; padding: 24px; border-radius: 16px; margin-bottom: 20px; border: 2px solid #fce7f3; text-align: left; }
+        .settings-group h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #fbcfe8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .add-btn { background: white; border: 2px solid var(--primary); color: var(--primary); font-weight: 900; font-size: 13px; padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .add-btn:hover { background: var(--primary); color: white; }
+
+        .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .s-tag { background: white; border: 2px solid var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .s-tag.absent { opacity: 0.5; border-color: #cbd5e1; background: #f1f5f9; text-decoration: line-through; }
+        .s-tag button { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; padding: 0; margin-left: 4px; }
+
+        /* 가상 도면 미니 데스크 */
+        .virtual-grid { display: grid; gap: 6px; justify-content: center; margin-top: 15px; background: white; padding: 20px; border-radius: 16px; border: 2px dashed var(--border); }
+        .v-desk { width: 60px; height: 40px; border: 2px solid #93c5fd; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; line-height: 1.2; transition: 0.2s; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; box-sizing: border-box; }
+        .v-desk:hover { background: #e0f2fe; }
+        .v-desk.paired { margin-right: 12px; }
+        .v-desk.pinned { background: #fbcfe8; border-color: #ec4899; color: #db2777; }
+        .v-desk.empty { color: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+    <!-- 가상 도면 고정용 미니 모달 (확률 제거됨) -->
+    <div id="pinModal" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="width: 350px; text-align: center;">
+            <h3 style="margin-top:0; color:var(--primary);">📌 비밀 자리 지정</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">학생 화면에는 표시되지 않습니다.</p>
+            <select id="pinSelect" style="width:100%; margin: 20px 0;"></select>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="applyPin()">고정하기</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="clearPin()">비우기</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('pinModal').classList.remove('active')">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>✨ 우리 반 도구상자</h1>
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('draw')">🎁 뽑기</button>
+            <button class="tab-btn" onclick="switchTab('seat')">🪑 자리 배치</button>
+            <button class="tab-btn" onclick="switchTab('timer')">⏱️ 타이머</button>
+            <button class="tab-btn" onclick="switchTab('duty')">🧹 당번 배정</button>
+        </div>
+        <button class="settings-btn" onclick="openSettings()">⚙️ 통합 설정</button>
+    </header>
+
+    <main>
+        <!-- 1. 랜덤 뽑기 탭 -->
+        <section id="tab-draw" class="section-container active">
+            <div class="card">
+                <div class="gacha-machine">
+                    <div class="gacha-dome" id="gachaDome"></div>
+                    <div class="gacha-base">
+                        <div class="gacha-dial" id="gachaDial" onclick="startGacha()">👆</div>
+                        <div class="gacha-slot">
+                            <div id="droppedCapsule" class="gacha-capsule"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gachaResult" class="gacha-result"></div>
+                <button class="btn btn-primary" id="gachaBtn" onclick="startGacha()" style="font-size: 20px; padding: 16px 40px; border-radius: 30px; margin-top:20px;">캡슐 뽑기!</button>
+            </div>
+        </section>
+
+        <!-- 2. 자리 배치 탭 -->
+        <section id="tab-seat" class="section-container">
+            <div class="card" style="background: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="margin: 0; color: var(--primary);">스마트 자리 배치 🪑</h2>
+                    <button class="btn btn-blue" onclick="generateSeats()">🔀 무작위 섞기!</button>
+                </div>
+                
+                <div style="background: #fef08a; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-bottom: 20px;">
+                    💡 <b>교체하기:</b> 자리를 바꿀 두 학생을 차례대로 클릭하면 즉시 위치가 맞바뀝니다. (빈자리와도 교체 가능)
+                </div>
+                
+                <div style="text-align: center;">
+                    <div class="teacher-desk">👨‍🏫 교탁 👩‍🏫</div>
+                    <div class="desk-grid" id="deskGridContainer"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 타이머 탭 -->
+        <section id="tab-timer" class="section-container">
+            <div class="card">
+                <div class="timer-quick-btns">
+                    <button class="btn btn-secondary" onclick="addTime(-60)">- 1분</button>
+                    <button class="btn btn-secondary" onclick="addTime(-10)">- 10초</button>
+                    <button class="btn btn-secondary" style="background: #bae6fd;" onclick="addTime(10)">+ 10초</button>
+                    <button class="btn btn-secondary" style="background: #bae6fd;" onclick="addTime(60)">+ 1분</button>
+                </div>
+                <div class="timer-display" id="timerDisplay">05:00</div>
+                <div class="timer-main-btns">
+                    <button class="btn btn-primary" id="timerStartBtn" onclick="toggleTimer()" style="font-size: 22px; padding: 16px 40px; border-radius: 30px;">▶ 시작</button>
+                    <button class="btn btn-secondary" onclick="resetTimer()" style="font-size: 22px; padding: 16px 40px; border-radius: 30px; background: #e2e8f0;">초기화</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 1인 1역 당번 배정 탭 -->
+        <section id="tab-duty" class="section-container">
+            <div class="card">
+                <h2 style="margin:0 0 10px 0; color:var(--primary);">🧹 1인 1역 당번 배정</h2>
+                <p style="color:var(--text-muted); margin-bottom: 20px;">설정창에서 미리 정해둔 역할들이 인원수에 맞게 무작위로 배정됩니다.</p>
+                
+                <button class="btn btn-primary" style="font-size: 18px; padding: 14px 40px; border-radius: 30px;" onclick="assignDuties()">역할 배정하기!</button>
+                <div class="duty-container" id="dutyGrid"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 통합 설정 모달 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <h2 style="margin-top: 0; color: var(--text-main); font-size: 24px; text-align: center; border-bottom: 3px solid var(--border); padding-bottom: 15px;">⚙️ 통합 설정창</h2>
+            
+            <!-- 학생 관리 (+버튼 방식) -->
+            <div class="settings-group">
+                <h3>📋 학생 명단 관리 <button class="add-btn" onclick="promptAddStudent()">+ 학생 추가</button></h3>
+                <div class="tags-container" id="studentTagsContainer"></div>
+                <p style="font-size: 11px; color: var(--text-muted); margin: 10px 0 0 0;">* 이름을 클릭하면 '결석' 처리되어 추첨/자리배치에서 자동 제외됩니다.</p>
+            </div>
+
+            <!-- 당번 관리 (+버튼 방식) -->
+            <div class="settings-group">
+                <h3>🧹 당번 역할 관리 <button class="add-btn" onclick="promptAddDuty()">+ 역할 추가</button></h3>
+                <div class="tags-container" id="dutyTagsContainer"></div>
+            </div>
+
+            <div class="settings-group">
+                <h3>🎁 뽑기 설정</h3>
+                <label style="display: flex; align-items: center; gap: 8px; font-weight:bold; cursor:pointer;">
+                    <input type="checkbox" id="cfgRemoveDrawn" style="width:18px; height:18px;"> 뽑힌 사람은 명단에서 자동 결석(제외) 처리하기
+                </label>
+            </div>
+
+            <div class="settings-group" style="margin-bottom: 0;">
+                <h3>🪑 자리 배치 설정</h3>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <div>가로(칸): <input type="number" id="cfgCols" value="5" min="2" max="10" style="width:70px;" onchange="renderVirtualGrid()"></div>
+                    <div>세로(줄): <input type="number" id="cfgRows" value="5" min="2" max="10" style="width:70px;" onchange="renderVirtualGrid()"></div>
+                </div>
+                <label style="display: flex; align-items: center; gap: 8px; font-weight:bold; cursor:pointer; margin-bottom: 15px;">
+                    <input type="checkbox" id="cfgPaired" checked style="width:18px; height:18px;" onchange="renderVirtualGrid()"> 두 칸마다 띄어 앉기 (짝꿍 복도 모드)
+                </label>
+
+                <!-- 선생님 전용 가상 도면 (오류 완벽 수정됨) -->
+                <h4 style="margin: 0; color: var(--accent); font-size: 15px;">📌 가상 도면 (비밀 자리 고정)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 5px 0 0 0;">자리를 클릭하여 학생을 지정하세요.</p>
+                <div class="virtual-grid" id="virtualDeskGrid"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="btn btn-primary" style="flex: 2; font-size: 18px;" onclick="saveSettings()">설정 저장 및 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 전역 상태 ---
+        const AppState = {
+            students: JSON.parse(localStorage.getItem('toolbox_students')) || [],
+            duties: JSON.parse(localStorage.getItem('toolbox_duties')) || ["칠판 지우기", "교탁 정리", "분리수거", "복도 쓸기", "문단속"],
+            settings: JSON.parse(localStorage.getItem('toolbox_settings')) || { removeDrawn: false, cols: 5, rows: 5, paired: true },
+            // 확률 제거, 오직 이름 문자열만 저장: { 0: "홍길동", 3: "김철수" }
+            pins: JSON.parse(localStorage.getItem('toolbox_pins')) || {}, 
+            currentLayout: []
+        };
+
+        // 기존에 잘못 저장된 객체 데이터가 있다면 텍스트 구조로 강제 초기화(에러 방지)
+        for(let key in AppState.pins) {
+            if(typeof AppState.pins[key] === 'object') {
+                AppState.pins = {}; 
+                break;
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
+            localStorage.setItem('toolbox_duties', JSON.stringify(AppState.duties));
+            localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
+            localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            if(tabId === 'seat' && AppState.currentLayout.length === 0) renderDeskGrid();
+        }
+
+        function triggerConfetti() {
+            const colors = ['#ec4899', '#3b82f6', '#10b981', '#facc15', '#a855f7'];
+            for(let i=0; i<40; i++) {
+                const el = document.createElement('div');
+                el.style.position = 'fixed'; el.style.left = Math.random() * 100 + 'vw'; el.style.top = '-20px';
+                el.style.width = '12px'; el.style.height = '12px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+                el.style.pointerEvents = 'none'; el.style.zIndex = '99999';
+                document.body.appendChild(el);
+                const duration = Math.random() * 1.5 + 1;
+                el.animate([
+                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', forwards: true });
+                setTimeout(() => el.remove(), duration * 1000);
+            }
+        }
+
+        // --- ⚙️ 통합 설정창 ---
+        function openSettings() {
+            document.getElementById('cfgRemoveDrawn').checked = AppState.settings.removeDrawn;
+            document.getElementById('cfgCols').value = AppState.settings.cols;
+            document.getElementById('cfgRows').value = AppState.settings.rows;
+            document.getElementById('cfgPaired').checked = AppState.settings.paired;
+            
+            renderStudentTags();
+            renderDutyTags();
+            renderVirtualGrid();
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function saveSettings() {
+            const oldCols = AppState.settings.cols; const oldRows = AppState.settings.rows;
+            AppState.settings.removeDrawn = document.getElementById('cfgRemoveDrawn').checked;
+            AppState.settings.cols = parseInt(document.getElementById('cfgCols').value);
+            AppState.settings.rows = parseInt(document.getElementById('cfgRows').value);
+            AppState.settings.paired = document.getElementById('cfgPaired').checked;
+            
+            if (oldCols !== AppState.settings.cols || oldRows !== AppState.settings.rows) {
+                AppState.pins = {}; AppState.currentLayout = []; 
+            }
+            saveData();
+            document.getElementById('settingsModal').classList.remove('active');
+            if(document.getElementById('tab-seat').classList.contains('active')) renderDeskGrid();
+        }
+
+        // --- 📋 명단 관리 ---
+        function promptAddStudent() {
+            const name = prompt("추가할 학생의 이름을 입력하세요:");
+            if(name && name.trim()) {
+                if(AppState.students.find(s => s.name === name.trim())) return alert("이미 존재하는 이름입니다.");
+                AppState.students.push({name: name.trim(), absent: false});
+                saveData(); renderStudentTags(); initGachaBalls();
+            }
+        }
+        function toggleAbsent(index) { AppState.students[index].absent = !AppState.students[index].absent; saveData(); renderStudentTags(); initGachaBalls(); }
+        function deleteStudent(index, e) { e.stopPropagation(); AppState.students.splice(index, 1); saveData(); renderStudentTags(); initGachaBalls(); }
+        function renderStudentTags() {
+            const container = document.getElementById('studentTagsContainer'); container.innerHTML = '';
+            AppState.students.forEach((std, i) => {
+                const tag = document.createElement('div'); tag.className = `s-tag ${std.absent ? 'absent' : ''}`;
+                tag.innerHTML = `<span>${std.name}</span> <button onclick="deleteStudent(${i}, event)">×</button>`;
+                tag.onclick = () => toggleAbsent(i);
+                container.appendChild(tag);
+            });
+        }
+        function getActiveStudents() { return AppState.students.filter(s => !s.absent).map(s => s.name); }
+
+        // --- 🧹 당번 관리 ---
+        function promptAddDuty() {
+            const role = prompt("추가할 역할을 입력하세요 (예: 칠판 지우기):");
+            if(role && role.trim()) {
+                if(AppState.duties.includes(role.trim())) return alert("이미 존재하는 역할입니다.");
+                AppState.duties.push(role.trim());
+                saveData(); renderDutyTags();
+            }
+        }
+        function deleteDuty(index) { AppState.duties.splice(index, 1); saveData(); renderDutyTags(); }
+        function renderDutyTags() {
+            const container = document.getElementById('dutyTagsContainer'); container.innerHTML = '';
+            AppState.duties.forEach((role, i) => {
+                const tag = document.createElement('div'); tag.className = 's-tag';
+                tag.innerHTML = `<span>${role}</span> <button onclick="deleteDuty(${i})">×</button>`;
+                container.appendChild(tag);
+            });
+        }
+
+        // --- 1. 캡슐 뽑기 ---
+        function initGachaBalls() {
+            const dome = document.getElementById('gachaDome'); dome.innerHTML = '';
+            const count = Math.min(getActiveStudents().length, 30);
+            for(let i=0; i<count; i++) {
+                const ball = document.createElement('div'); ball.className = 'gacha-ball';
+                ball.style.left = (Math.random() * 180) + 'px';
+                ball.style.top = (Math.random() * 100 + 100) + 'px';
+                dome.appendChild(ball);
+            }
+        }
+
+        let isDrawing = false;
+        function startGacha() {
+            const activeStds = getActiveStudents();
+            if (activeStds.length === 0) return alert("뽑을 학생이 없습니다! (명단을 확인하세요)");
+            if (isDrawing) return;
+            
+            isDrawing = true;
+            document.getElementById('gachaDial').classList.add('spinning');
+            document.getElementById('gachaResult').classList.remove('show');
+            const cap = document.getElementById('droppedCapsule');
+            cap.style.display = 'none'; cap.style.animation = 'none';
+
+            const balls = document.querySelectorAll('.gacha-ball');
+            balls.forEach(b => {
+                b.style.transition = '0.1s';
+                b.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
+            });
+            
+            setTimeout(() => {
+                document.getElementById('gachaDial').classList.remove('spinning');
+                cap.style.display = 'block'; cap.style.animation = 'dropCapsule 0.4s forwards';
+                
+                setTimeout(() => {
+                    const winner = activeStds[Math.floor(Math.random() * activeStds.length)];
+                    const res = document.getElementById('gachaResult');
+                    res.innerText = winner; res.classList.add('show');
+                    triggerConfetti();
+                    
+                    if (document.getElementById('cfgRemoveDrawn').checked) {
+                        const stdObj = AppState.students.find(s => s.name === winner);
+                        if(stdObj) { stdObj.absent = true; saveData(); initGachaBalls(); }
+                    }
+                    isDrawing = false;
+                }, 400);
+            }, 800);
+        }
+
+        // --- 선생님 전용 가상 도면 (오류 해결됨) ---
+        let currentPinTargetIdx = null;
+
+        function renderVirtualGrid() {
+            const container = document.getElementById('virtualDeskGrid');
+            const c = parseInt(document.getElementById('cfgCols').value) || 5;
+            const r = parseInt(document.getElementById('cfgRows').value) || 5;
+            const paired = document.getElementById('cfgPaired').checked;
+            const total = c * r;
+
+            container.style.gridTemplateColumns = `repeat(${c}, auto)`;
+            container.innerHTML = '';
+            
+            for(let i=0; i<total; i++) {
+                const div = document.createElement('div');
+                div.className = 'v-desk';
+                if(paired && (i % c) % 2 === 1 && (i % c) !== c - 1) div.classList.add('paired');
+
+                if(AppState.pins[i]) {
+                    div.classList.add('pinned');
+                    div.innerText = AppState.pins[i]; // 객체가 아닌 이름(문자열)만 출력
+                } else {
+                    div.classList.add('empty');
+                    div.innerText = '+';
+                }
+
+                div.onclick = () => openPinModal(i);
+                container.appendChild(div);
+            }
+        }
+
+        function openPinModal(idx) {
+            currentPinTargetIdx = idx;
+            const sel = document.getElementById('pinSelect');
+            sel.innerHTML = '<option value="">-- 학생 선택 --</option>';
+            getActiveStudents().forEach(name => {
+                const isSelected = (AppState.pins[idx] === name) ? 'selected' : '';
+                sel.innerHTML += `<option value="${name}" ${isSelected}>${name}</option>`;
+            });
+            document.getElementById('pinModal').classList.add('active');
+        }
+
+        function applyPin() {
+            const name = document.getElementById('pinSelect').value;
+            if (name) {
+                for(let k in AppState.pins) { if(AppState.pins[k] === name) delete AppState.pins[k]; }
+                AppState.pins[currentPinTargetIdx] = name;
+            }
+            saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
+        }
+
+        function clearPin() {
+            delete AppState.pins[currentPinTargetIdx];
+            saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
+        }
+
+        // --- 2. 진짜 자리 배치 ---
+        let selectedDeskIdx = null; 
+
+        function renderDeskGrid() {
+            const container = document.getElementById('deskGridContainer');
+            const cfg = AppState.settings;
+            const totalSeats = cfg.rows * cfg.cols;
+            
+            if(AppState.currentLayout.length !== totalSeats) AppState.currentLayout = new Array(totalSeats).fill(null);
+
+            container.style.gridTemplateColumns = `repeat(${cfg.cols}, auto)`;
+            container.innerHTML = '';
+
+            for(let i=0; i<totalSeats; i++) {
+                const div = document.createElement('div');
+                let className = 'desk';
+                if(cfg.paired && (i % cfg.cols) % 2 === 1 && (i % cfg.cols) !== cfg.cols - 1) className += ' paired';
+                if(selectedDeskIdx === i) className += ' selected';
+                
+                div.className = className;
+                
+                if(AppState.currentLayout[i]) {
+                    div.innerText = AppState.currentLayout[i];
+                } else {
+                    div.classList.add('empty');
+                }
+                
+                // 마우스로 수동 교체 
+                div.onclick = () => {
+                    if (selectedDeskIdx === null) {
+                        selectedDeskIdx = i; renderDeskGrid();
+                    } else {
+                        if (selectedDeskIdx !== i) {
+                            const temp = AppState.currentLayout[selectedDeskIdx];
+                            AppState.currentLayout[selectedDeskIdx] = AppState.currentLayout[i];
+                            AppState.currentLayout[i] = temp;
+                        }
+                        selectedDeskIdx = null; renderDeskGrid();
+                    }
+                };
+                container.appendChild(div);
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+            return array;
+        }
+
+        function generateSeats() {
+            const cfg = AppState.settings;
+            const activeStds = getActiveStudents();
+            const totalSeats = cfg.rows * cfg.cols;
+
+            if (activeStds.length > totalSeats) { return alert(`책상(${totalSeats}개)보다 학생 수(${activeStds.length}명)가 더 많습니다! 설정창에서 조절하세요.`); }
+
+            let layout = new Array(totalSeats).fill(null);
+            let remaining = [...activeStds];
+
+            // 1. 가상 도면에 설정된 비밀 고정 무조건 적용 (확률 삭제됨)
+            for (let idx in AppState.pins) {
+                const stdName = AppState.pins[idx];
+                if (remaining.includes(stdName)) {
+                    layout[idx] = stdName;
+                    remaining = remaining.filter(n => n !== stdName);
+                }
+            }
+
+            // 2. 남은 빈자리에 남은 학생 랜덤 배치
+            remaining = shuffleArray(remaining);
+            let emptyIndices = [];
+            for(let i=0; i<totalSeats; i++) { if(!layout[i]) emptyIndices.push(i); }
+            emptyIndices = shuffleArray(emptyIndices);
+            
+            for(let i=0; i<remaining.length; i++) { layout[emptyIndices[i]] = remaining[i]; }
+
+            selectedDeskIdx = null; AppState.currentLayout = layout;
+            
+            document.getElementById('deskGridContainer').style.opacity = '0.3';
+            setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
+        }
+
+        // --- 3. 타이머 ---
+        let timerInterval; let timeLeft = 300; let timerRunning = false;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+            document.getElementById('timerDisplay').style.color = (timeLeft <= 60 && timeLeft > 0) ? 'var(--primary)' : 'var(--text-main)';
+        }
+
+        function addTime(seconds) { timeLeft = Math.max(0, timeLeft + seconds); updateTimerDisplay(); }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerStartBtn');
+            if (timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                btn.innerText = "▶ 시작 (계속)"; btn.classList.replace('btn-danger', 'btn-primary');
+            } else {
+                if(timeLeft <= 0) return;
+                timerRunning = true; btn.innerText = "⏸ 일시정지"; btn.style.background = 'var(--danger)';
+                
+                timerInterval = setInterval(() => {
+                    timeLeft--; updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval); timerRunning = false;
+                        btn.innerText = "▶ 시작"; btn.style.background = 'var(--primary)';
+                        
+                        document.body.style.backgroundColor = '#fbcfe8';
+                        setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 500);
+                        setTimeout(() => document.body.style.backgroundColor = '#fbcfe8', 1000);
+                        setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 1500);
+                        triggerConfetti();
+                    }
+                }, 1000);
+            }
+        }
+        function resetTimer() { clearInterval(timerInterval); timerRunning = false; timeLeft = 300; document.getElementById('timerStartBtn').innerText = "▶ 시작"; document.getElementById('timerStartBtn').style.background = 'var(--primary)'; updateTimerDisplay(); }
+
+        // --- 4. 당번 배정 ---
+        function assignDuties() {
+            const roles = AppState.duties;
+            const stds = shuffleArray(getActiveStudents());
+            
+            if (roles.length === 0 || stds.length === 0) return alert("설정창에서 역할과 학생을 먼저 추가해주세요.");
+
+            const grid = document.getElementById('dutyGrid'); grid.innerHTML = '';
+            roles.forEach((role, i) => {
+                const assigned = i < stds.length ? stds[i] : "-";
+                grid.innerHTML += `
+                    <div class="duty-item">
+                        <div class="duty-role">${role}</div>
+                        <div class="duty-name">${assigned}</div>
+                    </div>
+                `;
+            });
+            triggerConfetti();
+        }
+
+        // 초기화
+        window.onload = () => { initGachaBalls(); renderDeskGrid(); updateTimerDisplay(); };
+    </script>
+</body>
+</html>
