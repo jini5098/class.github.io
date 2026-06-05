@@ -263,10 +263,10 @@
         </div>
     </div>
 
-    <script>
+   <script>
         // 🚨 아래 두 줄의 따옴표 안을 본인의 Supabase URL과 Key로 반드시 변경해야 합니다!
         const SUPABASE_URL = 'https://본인의_프로젝트_주소.supabase.co'; 
-        const SUPABASE_ANON_KEY = '본인의_ANON_KEY';
+        const SUPABASE_ANON_KEY = '본인의_ANON_KEY_아주긴글자';
         
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -275,13 +275,13 @@
         // 전역 상태
         let AppState = {
             students: [],
-            duties: ["청소", "정리"],
+            duties: ["칠판 지우기", "교탁 정리", "분리수거", "복도 쓸기", "문단속"],
             settings: { removeDrawn: false, cols: 5, rows: 5, paired: true },
-            pins: {}, // { seatIndex: { std: '이름', prob: 100 } }
+            pins: {}, 
             currentLayout: []
         };
 
-        // 기존에 텍스트 형태로 잘못 저장된 객체 데이터가 있다면 객체 구조로 초기화 (에러 방지)
+        // 데이터 꼬임 방지 
         for(let key in AppState.pins) {
             if(typeof AppState.pins[key] === 'string') {
                 AppState.pins = {}; 
@@ -289,14 +289,13 @@
             }
         }
 
-        // 서비스 워커 등록 (PWA 용)
+        // PWA 서비스 워커
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW error', err));
             });
         }
 
-        // --- 데이터 동기화 로직 ---
         async function handleLogin() {
             const id = document.getElementById('loginIdInput').value.trim();
             if (!id) return alert("아이디를 입력해주세요.");
@@ -309,23 +308,40 @@
             initApp();
         }
 
+        // 🚨 업그레이드: 불러오기 에러 알림 추가
         async function fetchServerData() {
             try {
                 const { data, error } = await client.from('classwork_data').select('app_data').eq('id', currentUserId).single();
-                if (data && data.app_data) {
+                
+                if (error && error.code !== 'PGRST116') { // 빈 데이터 에러가 아닌 진짜 에러일 때
+                    console.error("불러오기 에러:", error);
+                    alert("서버 오류: " + error.message + "\n(URL과 KEY, 테이블 권한 설정을 확인하세요!)");
+                } else if (data && data.app_data) {
                     AppState = data.app_data;
                 } else {
                     await client.from('classwork_data').insert([{ id: currentUserId, app_data: AppState }]);
                 }
             } catch (err) {
-                console.log("DB Load Error (Fallback to default)", err);
+                console.log("DB Load Error", err);
             }
         }
 
+        // 🚨 업그레이드: 로컬 컴퓨터 + 서버 이중 저장 및 에러 화면 표시
         async function saveData() {
+            // 1. 브라우저 로컬 저장 (인터넷이나 서버 문제 시 날아가지 않게 백업)
+            localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
+            localStorage.setItem('toolbox_duties', JSON.stringify(AppState.duties));
+            localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
+            localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
+
+            // 2. 수파베이스 서버 저장
             if (!currentUserId) return;
             try {
-                await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
+                const { error } = await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
+                if (error) {
+                    console.error("저장 실패:", error);
+                    alert("서버 저장 실패! 수파베이스 셋팅을 확인하세요: " + error.message);
+                }
             } catch (err) {
                 console.log("DB Save Error", err);
             }
@@ -346,7 +362,27 @@
             if(tabId === 'seat' && AppState.currentLayout.length === 0) renderDeskGrid();
         }
 
-        // --- 통합 설정창 ---
+        // --- 폭죽 이펙트 ---
+        function triggerConfetti() {
+            const colors = ['#ec4899', '#3b82f6', '#10b981', '#facc15', '#a855f7'];
+            for(let i=0; i<40; i++) {
+                const el = document.createElement('div');
+                el.style.position = 'fixed'; el.style.left = Math.random() * 100 + 'vw'; el.style.top = '-20px';
+                el.style.width = '12px'; el.style.height = '12px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+                el.style.pointerEvents = 'none'; el.style.zIndex = '99999';
+                document.body.appendChild(el);
+                const duration = Math.random() * 1.5 + 1;
+                el.animate([
+                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', forwards: true });
+                setTimeout(() => el.remove(), duration * 1000);
+            }
+        }
+
+        // --- ⚙️ 통합 설정창 ---
         function openSettings() {
             document.getElementById('cfgRemoveDrawn').checked = AppState.settings.removeDrawn;
             document.getElementById('cfgCols').value = AppState.settings.cols;
@@ -415,7 +451,7 @@
             });
         }
 
-        // --- 1. 캡슐 뽑기 (단정한 공 정렬) ---
+        // --- 1. 캡슐 뽑기 ---
         function initGachaBalls() {
             const dome = document.getElementById('gachaDome'); dome.innerHTML = '';
             const count = Math.min(getActiveStudents().length, 30);
@@ -476,7 +512,7 @@
             }, 800);
         }
 
-        // --- 선생님 전용 가상 도면 (확률 적용) ---
+        // --- 선생님 전용 가상 도면 ---
         let currentPinTargetIdx = null;
 
         function renderVirtualGrid() {
@@ -592,7 +628,6 @@
             let layout = new Array(totalSeats).fill(null);
             let remaining = [...activeStds];
 
-            // 1. 가상 도면에 설정된 확률로 고정 적용
             for (let idx in AppState.pins) {
                 const pin = AppState.pins[idx];
                 if (remaining.includes(pin.std)) {
@@ -603,7 +638,6 @@
                 }
             }
 
-            // 2. 남은 빈자리에 랜덤 배치
             remaining = shuffleArray(remaining);
             let emptyIndices = [];
             for(let i=0; i<totalSeats; i++) { if(!layout[i]) emptyIndices.push(i); }
@@ -615,7 +649,7 @@
             saveData();
             
             document.getElementById('deskGridContainer').style.opacity = '0.3';
-            setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; }, 300);
+            setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
         }
 
         // --- 3. 타이머 ---
@@ -649,6 +683,7 @@
                         setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 500);
                         setTimeout(() => document.body.style.backgroundColor = '#fbcfe8', 1000);
                         setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 1500);
+                        triggerConfetti();
                     }
                 }, 1000);
             }
@@ -672,9 +707,10 @@
                     </div>
                 `;
             });
+            triggerConfetti();
         }
 
-        // 앱 켰을 때 로그인 화면이 먼저 뜨도록 설정
+        // 앱 켰을 때 로그인 처리
         window.onload = () => {
             if(currentUserId) {
                 document.getElementById('syncModal').classList.remove('active');
