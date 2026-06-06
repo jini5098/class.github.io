@@ -264,9 +264,13 @@
     </div>
 
    <script>
-        // 🚨 아래 두 줄의 따옴표 안을 본인의 Supabase URL과 Key로 반드시 변경해야 합니다!
-        const SUPABASE_URL = 'https://본인의_프로젝트_주소.supabase.co'; 
-        const SUPABASE_ANON_KEY = '본인의_ANON_KEY_아주긴글자';
+        // 🚨 투명한 복사-붙여넣기 쓰레기 문자를 강제로 청소하는 마법의 코드
+        const rawUrl = 'https://jhiycxwcbsaafmllhooz.supabase.co'; 
+        const rawKey = 'sb_publishable_t2-gm6axwAA45OwSlYKsyQ_dZQtC4cs';
+        
+        // 정규식으로 눈에 안 보이는 특수문자와 공백을 완벽하게 제거!
+        const SUPABASE_URL = rawUrl.replace(/[^\x20-\x7E]/g, '').trim();
+        const SUPABASE_ANON_KEY = rawKey.replace(/[^\x20-\x7E]/g, '').trim();
         
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -281,24 +285,28 @@
             currentLayout: []
         };
 
-        // 데이터 꼬임 방지 
+        // 데이터 꼬임 방지
         for(let key in AppState.pins) {
-            if(typeof AppState.pins[key] === 'string') {
-                AppState.pins = {}; 
-                break;
-            }
+            if(typeof AppState.pins[key] === 'string') { AppState.pins = {}; break; }
         }
 
         // PWA 서비스 워커
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW error', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
             });
         }
 
         async function handleLogin() {
             const id = document.getElementById('loginIdInput').value.trim();
             if (!id) return alert("아이디를 입력해주세요.");
+            
+            // 다른 아이디로 로그인 시 기존 데이터 초기화 (꼬임 방지)
+            if (currentUserId !== id) {
+                AppState.students = [];
+                AppState.pins = {};
+                AppState.currentLayout = [];
+            }
             
             currentUserId = id;
             localStorage.setItem('classwork_userid', id);
@@ -308,12 +316,11 @@
             initApp();
         }
 
-        // 🚨 업그레이드: 불러오기 에러 알림 추가
         async function fetchServerData() {
             try {
                 const { data, error } = await client.from('classwork_data').select('app_data').eq('id', currentUserId).single();
                 
-                if (error && error.code !== 'PGRST116') { // 빈 데이터 에러가 아닌 진짜 에러일 때
+                if (error && error.code !== 'PGRST116') { 
                     console.error("불러오기 에러:", error);
                     alert("서버 오류: " + error.message + "\n(URL과 KEY, 테이블 권한 설정을 확인하세요!)");
                 } else if (data && data.app_data) {
@@ -326,15 +333,12 @@
             }
         }
 
-        // 🚨 업그레이드: 로컬 컴퓨터 + 서버 이중 저장 및 에러 화면 표시
         async function saveData() {
-            // 1. 브라우저 로컬 저장 (인터넷이나 서버 문제 시 날아가지 않게 백업)
             localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
             localStorage.setItem('toolbox_duties', JSON.stringify(AppState.duties));
             localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
             localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
 
-            // 2. 수파베이스 서버 저장
             if (!currentUserId) return;
             try {
                 const { error } = await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
@@ -353,7 +357,6 @@
             updateTimerDisplay();
         }
 
-        // --- 탭 전환 ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
@@ -362,7 +365,6 @@
             if(tabId === 'seat' && AppState.currentLayout.length === 0) renderDeskGrid();
         }
 
-        // --- 폭죽 이펙트 ---
         function triggerConfetti() {
             const colors = ['#ec4899', '#3b82f6', '#10b981', '#facc15', '#a855f7'];
             for(let i=0; i<40; i++) {
@@ -382,7 +384,6 @@
             }
         }
 
-        // --- ⚙️ 통합 설정창 ---
         function openSettings() {
             document.getElementById('cfgRemoveDrawn').checked = AppState.settings.removeDrawn;
             document.getElementById('cfgCols').value = AppState.settings.cols;
@@ -410,7 +411,6 @@
             if(document.getElementById('tab-seat').classList.contains('active')) renderDeskGrid();
         }
 
-        // --- 명단 관리 ---
         function promptAddStudent() {
             const name = prompt("추가할 학생의 이름을 입력하세요:");
             if(name && name.trim()) {
@@ -432,7 +432,6 @@
         }
         function getActiveStudents() { return AppState.students.filter(s => !s.absent).map(s => s.name); }
 
-        // --- 당번 관리 ---
         function promptAddDuty() {
             const role = prompt("추가할 역할을 입력하세요:");
             if(role && role.trim()) {
@@ -451,7 +450,6 @@
             });
         }
 
-        // --- 1. 캡슐 뽑기 ---
         function initGachaBalls() {
             const dome = document.getElementById('gachaDome'); dome.innerHTML = '';
             const count = Math.min(getActiveStudents().length, 30);
@@ -512,7 +510,6 @@
             }, 800);
         }
 
-        // --- 선생님 전용 가상 도면 ---
         let currentPinTargetIdx = null;
 
         function renderVirtualGrid() {
@@ -570,7 +567,6 @@
             saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
         }
 
-        // --- 2. 진짜 자리 배치 ---
         let selectedDeskIdx = null; 
 
         function renderDeskGrid() {
@@ -652,7 +648,6 @@
             setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
         }
 
-        // --- 3. 타이머 ---
         let timerInterval; let timeLeft = 300; let timerRunning = false;
 
         function updateTimerDisplay() {
@@ -690,7 +685,6 @@
         }
         function resetTimer() { clearInterval(timerInterval); timerRunning = false; timeLeft = 300; document.getElementById('timerStartBtn').innerText = "시작"; document.getElementById('timerStartBtn').style.background = 'var(--primary)'; updateTimerDisplay(); }
 
-        // --- 4. 당번 배정 ---
         function assignDuties() {
             const roles = AppState.duties;
             const stds = shuffleArray(getActiveStudents());
@@ -710,7 +704,6 @@
             triggerConfetti();
         }
 
-        // 앱 켰을 때 로그인 처리
         window.onload = () => {
             if(currentUserId) {
                 document.getElementById('syncModal').classList.remove('active');
