@@ -6,8 +6,8 @@
     <title>classwork</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         :root {
             --bg-color: #fdf4ff; --primary: #ec4899; --primary-hover: #db2777;
@@ -39,14 +39,14 @@
         input, select, textarea { padding: 12px; font-size: 15px; border: 2px solid var(--border); border-radius: 10px; outline: none; font-weight: bold; box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
-        /* 가챠 머신 CSS */
+        /* 1. 뽑기 머신 (단정한 공 디자인) */
         .gacha-machine { width: 260px; margin: 0 auto 20px auto; position: relative; }
         .gacha-dome { width: 240px; height: 240px; background: rgba(255,255,255,0.9); border: 8px solid #cbd5e1; border-radius: 50%; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 -20px 30px rgba(0,0,0,0.1); z-index: 2; }
         
         .gacha-ball { 
-            width: 40px; height: 40px; border-radius: 50%; position: absolute;
+            width: 45px; height: 45px; border-radius: 50%; position: absolute;
             background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%);
-            border: 3px solid #1e293b; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.15);
+            border: 3px solid #1e293b; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
             overflow: hidden;
         }
         .gacha-ball::after {
@@ -75,33 +75,34 @@
         .gacha-result { font-size: 60px; font-weight: 900; color: var(--accent); min-height: 90px; margin-top: 10px; text-shadow: 2px 2px 0px #bfdbfe; transition: 0.3s; transform: scale(0); opacity: 0; }
         .gacha-result.show { transform: scale(1); opacity: 1; }
 
-        /* 자리 배치 탭 */
+        /* 2. 자리 배치 탭 (글자 삐져나감 방지) */
         .desk-grid { display: grid; gap: 16px; justify-content: center; margin-top: 20px; padding: 40px; background: #e0f2fe; border-radius: 24px; border: 4px solid #bae6fd; }
         .teacher-desk { background: var(--text-main); color: white; padding: 16px 80px; border-radius: 12px; font-weight: 900; font-size: 20px; margin: 0 auto 30px auto; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .desk { 
             box-sizing: border-box; width: 110px; height: 65px; background: white; border: 3px solid #93c5fd; border-radius: 12px; 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 18px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; cursor: pointer; user-select: none; position: relative; 
+            display: flex; justify-content: center; align-items: center; padding: 0 5px;
+            font-size: 18px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; cursor: pointer; user-select: none; position: relative;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
         }
         .desk:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.1); border-color: var(--accent); }
         .desk.empty { background: transparent; border: 3px dashed #93c5fd; color: transparent; box-shadow: none; }
         .desk.paired { margin-right: 24px; }
         .desk.selected { border: 4px solid var(--primary); background: #fdf2f8; transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3); }
 
-        /* 타이머 탭 */
+        /* 3. 타이머 탭 */
         .timer-display { font-size: 200px; font-weight: 900; color: var(--text-main); line-height: 1; text-shadow: 5px 5px 0px var(--secondary); margin: 30px 0; font-variant-numeric: tabular-nums; }
         .timer-quick-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .timer-quick-btns button { font-size: 18px; padding: 10px 20px; border-radius: 20px; }
         .timer-main-btns { display: flex; gap: 15px; justify-content: center; }
 
-        /* 당번 배정 탭 */
+        /* 4. 당번 배정 탭 */
         .duty-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 30px; text-align: left; }
         .duty-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.2s; }
         .duty-item:hover { border-color: var(--accent); transform: translateY(-2px); }
         .duty-role { font-weight: 900; color: var(--accent); font-size: 16px; }
         .duty-name { font-weight: 800; color: var(--text-main); font-size: 18px; background: #f1f5f9; padding: 6px 16px; border-radius: 8px; }
 
-        /* 모달 (오버레이) */
+        /* 설정 모달 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--box-bg); padding: 30px; border-radius: 24px; width: 700px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 4px solid var(--border); }
@@ -263,60 +264,452 @@
         </div>
     </div>
 
-  <script>
-    const SUPABASE_URL = 'https://jhiycxwcbsaafmllhooz.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'sb_publishable_t2-gm6axwAA45OwSlYKsyQ_dZQtC4cs';
-    
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentUserId = localStorage.getItem('classwork_userid') || '';
+    <script>
+        // 수파베이스 키 적용 완료
+        const SUPABASE_URL = 'https://jhiycxwcbsaafmllhooz.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_t2-gm6axwAA45OwSlYKsyQ_dZQtC4cs';
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let AppState = { students: [], duties: ["청소", "정리"], settings: { removeDrawn: false, cols: 5, rows: 5, paired: true }, pins: {}, currentLayout: [] };
+        let currentUserId = localStorage.getItem('classwork_userid') || '';
 
-    // 서버 동기화 함수
-    async function fetchServerData() {
-        if(!currentUserId) return;
-        try {
-            const { data, error } = await client.from('classwork_data').select('app_data').eq('id', currentUserId).single();
-            if (data) { AppState = data.app_data; } 
-            else { await client.from('classwork_data').insert([{ id: currentUserId, app_data: AppState }]); }
-        } catch (err) { console.error("서버 불러오기 실패:", err); }
-    }
+        let AppState = {
+            students: [],
+            duties: ["칠판 지우기", "교탁 정리", "분리수거", "복도 쓸기", "문단속"],
+            settings: { removeDrawn: false, cols: 5, rows: 5, paired: true },
+            pins: {}, // { seatIndex: { std: '이름', prob: 100 } }
+            currentLayout: []
+        };
 
-    async function saveData() {
-        // 로컬에 먼저 저장 (안전장치)
-        localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
-        localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
-        localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
-        
-        // 서버에 동기화
-        if (!currentUserId) return;
-        try {
-            await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
-        } catch (err) { console.error("서버 저장 실패:", err); }
-    }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
+            });
+        }
 
-    // ... 그 외 함수들은 이전과 동일하게 유지 (AppState.students 등을 AppState로 사용) ...
-    // ... (이미 구현된 모든 함수 내용을 여기에 유지하세요) ...
-    // 버튼 클릭 시 호출될 함수 (이게 꼭 있어야 해!)
-function handleLogin() {
-    const input = document.getElementById('loginIdInput');
-    const id = input ? input.value.trim() : "";
-    
-    if (!id) {
-        alert("아이디를 입력해주세요.");
-        return;
-    }
-    
-    currentUserId = id;
-    localStorage.setItem('classwork_userid', id);
-    
-    // 모달창 닫기
-    const modal = document.getElementById('syncModal');
-    if(modal) modal.classList.remove('active');
-    
-    // 서버 연결 및 초기화
-    fetchServerData().then(() => initApp());
-}
-</script>
+        // 전체 초기화 함수
+        function initApp() {
+            initGachaBalls();
+            renderDeskGrid();
+            updateTimerDisplay();
+            renderStudentTags();
+            renderDutyTags();
+            renderVirtualGrid();
+        }
+
+        // 서버 데이터 불러오기
+        async function fetchServerData() {
+            if (!currentUserId) return;
+            try {
+                const { data, error } = await client.from('classwork_data').select('app_data').eq('id', currentUserId).single();
+                if (data && data.app_data) {
+                    AppState = data.app_data;
+                    // 데이터 꼬임 방지 (구버전 데이터 처리)
+                    for(let key in AppState.pins) {
+                        if(typeof AppState.pins[key] === 'string') { AppState.pins = {}; break; }
+                    }
+                } else if (error && error.code === 'PGRST116') {
+                    // 새 유저 생성
+                    await client.from('classwork_data').insert([{ id: currentUserId, app_data: AppState }]);
+                } else if (error) {
+                    console.error("불러오기 에러:", error);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        // 서버 및 로컬 데이터 저장
+        async function saveData() {
+            localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
+            localStorage.setItem('toolbox_duties', JSON.stringify(AppState.duties));
+            localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
+            localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
+
+            if (!currentUserId) return;
+            try {
+                await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
+            } catch (err) { console.error("서버 저장 에러:", err); }
+        }
+
+        // 로그인 버튼 클릭 시 연결 (window 영역 등록으로 클릭 에러 완벽 해결)
+        window.handleLogin = async function() {
+            const input = document.getElementById('loginIdInput');
+            const id = input ? input.value.trim() : "";
+            
+            if (!id) return alert("아이디를 입력해주세요.");
+            
+            currentUserId = id;
+            localStorage.setItem('classwork_userid', id);
+            
+            const modal = document.getElementById('syncModal');
+            if(modal) modal.classList.remove('active');
+            
+            await fetchServerData();
+            initApp();
+        };
+
+        // 폭죽 이펙트
+        function triggerConfetti() {
+            const colors = ['#ec4899', '#3b82f6', '#10b981', '#facc15', '#a855f7'];
+            for(let i=0; i<40; i++) {
+                const el = document.createElement('div');
+                el.style.position = 'fixed'; el.style.left = Math.random() * 100 + 'vw'; el.style.top = '-20px';
+                el.style.width = '12px'; el.style.height = '12px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+                el.style.pointerEvents = 'none'; el.style.zIndex = '99999';
+                document.body.appendChild(el);
+                const duration = Math.random() * 1.5 + 1;
+                el.animate([
+                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', forwards: true });
+                setTimeout(() => el.remove(), duration * 1000);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            if(tabId === 'seat' && AppState.currentLayout.length === 0) renderDeskGrid();
+        }
+
+        function openSettings() {
+            document.getElementById('cfgRemoveDrawn').checked = AppState.settings.removeDrawn;
+            document.getElementById('cfgCols').value = AppState.settings.cols;
+            document.getElementById('cfgRows').value = AppState.settings.rows;
+            document.getElementById('cfgPaired').checked = AppState.settings.paired;
+            
+            renderStudentTags();
+            renderDutyTags();
+            renderVirtualGrid();
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function saveSettings() {
+            const oldCols = AppState.settings.cols; const oldRows = AppState.settings.rows;
+            AppState.settings.removeDrawn = document.getElementById('cfgRemoveDrawn').checked;
+            AppState.settings.cols = parseInt(document.getElementById('cfgCols').value);
+            AppState.settings.rows = parseInt(document.getElementById('cfgRows').value);
+            AppState.settings.paired = document.getElementById('cfgPaired').checked;
+            
+            if (oldCols !== AppState.settings.cols || oldRows !== AppState.settings.rows) {
+                AppState.pins = {}; AppState.currentLayout = []; 
+            }
+            saveData();
+            document.getElementById('settingsModal').classList.remove('active');
+            if(document.getElementById('tab-seat').classList.contains('active')) renderDeskGrid();
+        }
+
+        function promptAddStudent() {
+            const name = prompt("추가할 학생의 이름을 입력하세요:");
+            if(name && name.trim()) {
+                if(AppState.students.find(s => s.name === name.trim())) return alert("이미 존재하는 이름입니다.");
+                AppState.students.push({name: name.trim(), absent: false});
+                saveData(); renderStudentTags(); initGachaBalls();
+            }
+        }
+        function toggleAbsent(index) { AppState.students[index].absent = !AppState.students[index].absent; saveData(); renderStudentTags(); initGachaBalls(); }
+        function deleteStudent(index, e) { e.stopPropagation(); AppState.students.splice(index, 1); saveData(); renderStudentTags(); initGachaBalls(); }
+        function renderStudentTags() {
+            const container = document.getElementById('studentTagsContainer'); container.innerHTML = '';
+            AppState.students.forEach((std, i) => {
+                const tag = document.createElement('div'); tag.className = `s-tag ${std.absent ? 'absent' : ''}`;
+                tag.innerHTML = `<span>${std.name}</span> <button onclick="deleteStudent(${i}, event)">X</button>`;
+                tag.onclick = () => toggleAbsent(i);
+                container.appendChild(tag);
+            });
+        }
+        function getActiveStudents() { return AppState.students.filter(s => !s.absent).map(s => s.name); }
+
+        function promptAddDuty() {
+            const role = prompt("추가할 역할을 입력하세요:");
+            if(role && role.trim()) {
+                if(AppState.duties.includes(role.trim())) return alert("이미 존재하는 역할입니다.");
+                AppState.duties.push(role.trim());
+                saveData(); renderDutyTags();
+            }
+        }
+        function deleteDuty(index) { AppState.duties.splice(index, 1); saveData(); renderDutyTags(); }
+        function renderDutyTags() {
+            const container = document.getElementById('dutyTagsContainer'); container.innerHTML = '';
+            AppState.duties.forEach((role, i) => {
+                const tag = document.createElement('div'); tag.className = 's-tag';
+                tag.innerHTML = `<span>${role}</span> <button onclick="deleteDuty(${i})">X</button>`;
+                container.appendChild(tag);
+            });
+        }
+
+        // --- 1. 캡슐 뽑기 ---
+        function initGachaBalls() {
+            const dome = document.getElementById('gachaDome'); dome.innerHTML = '';
+            const count = Math.min(getActiveStudents().length, 30);
+            
+            const cols = 6;
+            const spacingX = 35;
+            const spacingY = 30;
+            const startX = (240 - (cols * spacingX)) / 2 + 10;
+            const startY = 175;
+
+            for(let i=0; i<count; i++) {
+                const ball = document.createElement('div'); ball.className = 'gacha-ball';
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+                const offsetX = (row % 2 === 1) ? spacingX / 2 : 0;
+                
+                ball.style.left = (startX + col * spacingX + offsetX) + 'px';
+                ball.style.top = (startY - row * spacingY) + 'px';
+                dome.appendChild(ball);
+            }
+        }
+
+        let isDrawing = false;
+        window.startGacha = function() {
+            const activeStds = getActiveStudents();
+            if (activeStds.length === 0) return alert("뽑을 학생이 없습니다.");
+            if (isDrawing) return;
+            
+            isDrawing = true;
+            document.getElementById('gachaDial').classList.add('spinning');
+            document.getElementById('gachaResult').classList.remove('show');
+            const cap = document.getElementById('droppedCapsule');
+            cap.style.display = 'none'; cap.style.animation = 'none';
+
+            const balls = document.querySelectorAll('.gacha-ball');
+            balls.forEach(b => {
+                b.style.transition = '0.2s cubic-bezier(0.36, 0.07, 0.19, 0.97)';
+                b.style.transform = `translate(${Math.random()*40-20}px, ${Math.random()*40-20}px)`;
+            });
+            
+            setTimeout(() => {
+                document.getElementById('gachaDial').classList.remove('spinning');
+                cap.style.display = 'block'; cap.style.animation = 'dropCapsule 0.4s forwards';
+                
+                balls.forEach(b => b.style.transform = 'translate(0, 0)');
+                
+                setTimeout(() => {
+                    const winner = activeStds[Math.floor(Math.random() * activeStds.length)];
+                    const res = document.getElementById('gachaResult');
+                    res.innerText = winner; res.classList.add('show');
+                    triggerConfetti();
+                    
+                    if (AppState.settings.removeDrawn) {
+                        const stdObj = AppState.students.find(s => s.name === winner);
+                        if(stdObj) { stdObj.absent = true; saveData(); initGachaBalls(); }
+                    }
+                    isDrawing = false;
+                }, 400);
+            }, 800);
+        };
+
+        // --- 선생님 전용 가상 도면 ---
+        let currentPinTargetIdx = null;
+
+        function renderVirtualGrid() {
+            const container = document.getElementById('virtualDeskGrid');
+            const c = parseInt(document.getElementById('cfgCols').value) || 5;
+            const r = parseInt(document.getElementById('cfgRows').value) || 5;
+            const paired = document.getElementById('cfgPaired').checked;
+            const total = c * r;
+
+            container.style.gridTemplateColumns = `repeat(${c}, auto)`;
+            container.innerHTML = '';
+            
+            for(let i=0; i<total; i++) {
+                const div = document.createElement('div');
+                div.className = 'v-desk';
+                if(paired && (i % c) % 2 === 1 && (i % c) !== c - 1) div.classList.add('paired');
+
+                if(AppState.pins[i] && AppState.pins[i].std) {
+                    div.classList.add('pinned');
+                    div.innerHTML = `${AppState.pins[i].std}<br><span style="font-size:9px;">(${AppState.pins[i].prob}%)</span>`;
+                } else {
+                    div.classList.add('empty');
+                    div.innerText = '+';
+                }
+
+                div.onclick = () => openPinModal(i);
+                container.appendChild(div);
+            }
+        }
+
+        window.openPinModal = function(idx) {
+            currentPinTargetIdx = idx;
+            const sel = document.getElementById('pinSelect');
+            sel.innerHTML = '<option value="">-- 학생 선택 --</option>';
+            getActiveStudents().forEach(name => {
+                const isSelected = (AppState.pins[idx] && AppState.pins[idx].std === name) ? 'selected' : '';
+                sel.innerHTML += `<option value="${name}" ${isSelected}>${name}</option>`;
+            });
+            document.getElementById('pinProb').value = AppState.pins[idx] ? AppState.pins[idx].prob : 100;
+            document.getElementById('pinModal').classList.add('active');
+        };
+
+        window.applyPin = function() {
+            const name = document.getElementById('pinSelect').value;
+            const prob = parseInt(document.getElementById('pinProb').value);
+            if (name && prob > 0) {
+                for(let k in AppState.pins) { if(AppState.pins[k].std === name) delete AppState.pins[k]; }
+                AppState.pins[currentPinTargetIdx] = { std: name, prob: prob };
+            }
+            saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
+        };
+
+        window.clearPin = function() {
+            delete AppState.pins[currentPinTargetIdx];
+            saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
+        };
+
+        // --- 2. 진짜 자리 배치 ---
+        let selectedDeskIdx = null; 
+
+        function renderDeskGrid() {
+            const container = document.getElementById('deskGridContainer');
+            const cfg = AppState.settings;
+            const totalSeats = cfg.rows * cfg.cols;
+            
+            if(AppState.currentLayout.length !== totalSeats) AppState.currentLayout = new Array(totalSeats).fill(null);
+
+            container.style.gridTemplateColumns = `repeat(${cfg.cols}, auto)`;
+            container.innerHTML = '';
+
+            for(let i=0; i<totalSeats; i++) {
+                const div = document.createElement('div');
+                let className = 'desk';
+                if(cfg.paired && (i % cfg.cols) % 2 === 1 && (i % cfg.cols) !== cfg.cols - 1) className += ' paired';
+                if(selectedDeskIdx === i) className += ' selected';
+                
+                div.className = className;
+                if(AppState.currentLayout[i]) {
+                    div.innerText = AppState.currentLayout[i];
+                } else {
+                    div.classList.add('empty');
+                }
+                
+                div.onclick = () => {
+                    if (selectedDeskIdx === null) {
+                        selectedDeskIdx = i; renderDeskGrid();
+                    } else {
+                        if (selectedDeskIdx !== i) {
+                            const temp = AppState.currentLayout[selectedDeskIdx];
+                            AppState.currentLayout[selectedDeskIdx] = AppState.currentLayout[i];
+                            AppState.currentLayout[i] = temp;
+                            saveData();
+                        }
+                        selectedDeskIdx = null; renderDeskGrid();
+                    }
+                };
+                container.appendChild(div);
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+            return array;
+        }
+
+        window.generateSeats = function() {
+            const cfg = AppState.settings;
+            const activeStds = getActiveStudents();
+            const totalSeats = cfg.rows * cfg.cols;
+
+            if (activeStds.length > totalSeats) { return alert(`책상 수가 부족합니다.`); }
+
+            let layout = new Array(totalSeats).fill(null);
+            let remaining = [...activeStds];
+
+            for (let idx in AppState.pins) {
+                const pin = AppState.pins[idx];
+                if (remaining.includes(pin.std)) {
+                    if (Math.random() * 100 < pin.prob) {
+                        layout[idx] = pin.std;
+                        remaining = remaining.filter(n => n !== pin.std);
+                    }
+                }
+            }
+
+            remaining = shuffleArray(remaining);
+            let emptyIndices = [];
+            for(let i=0; i<totalSeats; i++) { if(!layout[i]) emptyIndices.push(i); }
+            emptyIndices = shuffleArray(emptyIndices);
+            
+            for(let i=0; i<remaining.length; i++) { layout[emptyIndices[i]] = remaining[i]; }
+
+            selectedDeskIdx = null; AppState.currentLayout = layout;
+            saveData();
+            
+            document.getElementById('deskGridContainer').style.opacity = '0.3';
+            setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
+        };
+
+        // --- 3. 타이머 ---
+        let timerInterval; let timeLeft = 300; let timerRunning = false;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+            document.getElementById('timerDisplay').style.color = (timeLeft <= 60 && timeLeft > 0) ? 'var(--primary)' : 'var(--text-main)';
+        }
+
+        window.addTime = function(seconds) { timeLeft = Math.max(0, timeLeft + seconds); updateTimerDisplay(); };
+
+        window.toggleTimer = function() {
+            const btn = document.getElementById('timerStartBtn');
+            if (timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                btn.innerText = "계속"; btn.classList.replace('btn-danger', 'btn-primary');
+            } else {
+                if(timeLeft <= 0) return;
+                timerRunning = true; btn.innerText = "일시정지"; btn.style.background = 'var(--danger)';
+                
+                timerInterval = setInterval(() => {
+                    timeLeft--; updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval); timerRunning = false;
+                        btn.innerText = "시작"; btn.style.background = 'var(--primary)';
+                        
+                        document.body.style.backgroundColor = '#fbcfe8';
+                        setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 500);
+                        setTimeout(() => document.body.style.backgroundColor = '#fbcfe8', 1000);
+                        setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 1500);
+                        triggerConfetti();
+                    }
+                }, 1000);
+            }
+        };
+        window.resetTimer = function() { clearInterval(timerInterval); timerRunning = false; timeLeft = 300; document.getElementById('timerStartBtn').innerText = "시작"; document.getElementById('timerStartBtn').style.background = 'var(--primary)'; updateTimerDisplay(); };
+
+        // --- 4. 당번 배정 ---
+        window.assignDuties = function() {
+            const roles = AppState.duties;
+            const stds = shuffleArray(getActiveStudents());
+            
+            if (roles.length === 0 || stds.length === 0) return alert("설정창에서 데이터를 추가해주세요.");
+
+            const grid = document.getElementById('dutyGrid'); grid.innerHTML = '';
+            roles.forEach((role, i) => {
+                const assigned = i < stds.length ? stds[i] : "-";
+                grid.innerHTML += `
+                    <div class="duty-item">
+                        <div class="duty-role">${role}</div>
+                        <div class="duty-name">${assigned}</div>
+                    </div>
+                `;
+            });
+            triggerConfetti();
+        };
+
+        // 앱 시작
+        window.onload = async () => {
+            if(currentUserId) {
+                document.getElementById('syncModal').classList.remove('active');
+                await fetchServerData();
+                initApp();
+            } else {
+                document.getElementById('syncModal').classList.add('active');
+            }
+        };
+    </script>
 </body>
 </html>
