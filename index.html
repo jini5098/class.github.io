@@ -10,143 +10,160 @@
     
     <style>
         :root {
-            --bg-color: #fdf4ff; --primary: #ec4899; --primary-hover: #db2777;
-            --secondary: #fef08a; --secondary-hover: #fde047; --accent: #3b82f6;
-            --text-main: #334155; --text-muted: #64748b; --border: #fbcfe8; --box-bg: #ffffff;
+            /* 밝고 화사한 파스텔 테마 */
+            --bg-color: #fff0f6; 
+            --primary: #ff87ab; 
+            --primary-hover: #f1789c;
+            --secondary: #ffe6a7; 
+            --secondary-hover: #ffd166;
+            --accent: #48cae4; 
+            --text-main: #4a4e69; 
+            --text-muted: #9fa0b4;
+            --border: #ffc2d1;
+            --box-bg: rgba(255, 255, 255, 0.95); 
+            --danger: #ff4d6d; /* 타이머 오류를 막아주는 진짜 빨간색 변수! */
         }
-        body { margin: 0; font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { background: var(--box-bg); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.03); z-index: 10; }
-        h1 { margin: 0; font-size: 26px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        /* 은은한 도트 패턴 배경 */
+        body { 
+            margin: 0; font-family: 'Pretendard', -apple-system, sans-serif; 
+            background-color: var(--bg-color); 
+            background-image: radial-gradient(var(--border) 2px, transparent 2px);
+            background-size: 40px 40px;
+            color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
+        }
+        
+        header { background: var(--box-bg); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border); box-shadow: 0 4px 15px rgba(255, 135, 171, 0.1); z-index: 10; backdrop-filter: blur(5px); }
+        h1 { margin: 0; font-size: 26px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        
         .tab-menu { display: flex; gap: 12px; flex: 1; justify-content: center; margin: 0 20px; }
-        .tab-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: transparent; color: var(--text-muted); border-radius: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .tab-btn:hover { background: #fce7f3; color: var(--primary); }
-        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(236, 72, 153, 0.3); }
-        .settings-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: var(--text-main); color: white; border-radius: 12px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .settings-btn:hover { background: #1e293b; transform: translateY(-2px); }
+        .tab-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: transparent; color: var(--text-muted); border-radius: 16px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .tab-btn:hover { background: #ffe5ec; color: var(--primary); transform: translateY(-2px); }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 6px 12px rgba(255, 135, 171, 0.3); transform: translateY(-2px); }
+        .settings-btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; background: var(--text-main); color: white; border-radius: 16px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .settings-btn:hover { background: #22223b; transform: translateY(-2px); }
 
         main { flex: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; }
         .section-container { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .section-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .card { background: var(--box-bg); padding: 40px; border-radius: 24px; border: 3px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
-        button.btn { padding: 12px 24px; font-size: 16px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
-        button.btn-primary { background: var(--primary); color: white; } button.btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
-        button.btn-secondary { background: var(--secondary); color: var(--text-main); } button.btn-secondary:hover { background: var(--secondary-hover); }
-        button.btn-blue { background: var(--accent); color: white; } button.btn-blue:hover { background: #2563eb; transform: scale(1.05); }
-        button.btn-danger { background: #ef4444; color: white; } button.btn-danger:hover { background: #dc2626; }
-        input, select, textarea { padding: 12px; font-size: 15px; border: 2px solid var(--border); border-radius: 10px; outline: none; font-weight: bold; box-sizing: border-box; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+        .card { background: var(--box-bg); padding: 40px; border-radius: 32px; border: 4px solid #ffffff; box-shadow: 0 15px 30px rgba(255, 135, 171, 0.15); text-align: center; position: relative; }
+        
+        button.btn { padding: 12px 24px; font-size: 16px; font-weight: 900; border: none; border-radius: 16px; cursor: pointer; transition: 0.2s; }
+        button.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(255, 135, 171, 0.3); } 
+        button.btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
+        button.btn-secondary { background: var(--secondary); color: var(--text-main); } 
+        button.btn-secondary:hover { background: var(--secondary-hover); transform: scale(1.05); }
+        button.btn-blue { background: var(--accent); color: white; } 
+        button.btn-blue:hover { background: #00b4d8; transform: scale(1.05); }
+        button.btn-danger { background: var(--danger); color: white; } 
+        button.btn-danger:hover { background: #c9184a; }
+        
+        input, select, textarea { padding: 14px; font-size: 15px; border: 3px solid #ffe5ec; border-radius: 16px; outline: none; font-weight: bold; box-sizing: border-box; background: white; transition: 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 135, 171, 0.2); }
 
-        /* 1. 뽑기 머신 (단정한 공 디자인) */
         .gacha-machine { width: 260px; margin: 0 auto 20px auto; position: relative; }
-        .gacha-dome { width: 240px; height: 240px; background: rgba(255,255,255,0.9); border: 8px solid #cbd5e1; border-radius: 50%; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 -20px 30px rgba(0,0,0,0.1); z-index: 2; }
+        .gacha-dome { width: 240px; height: 240px; background: rgba(255,255,255,0.9); border: 8px solid #caf0f8; border-radius: 50%; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 -20px 30px rgba(0,0,0,0.05); z-index: 2; }
         
         .gacha-ball { 
             width: 45px; height: 45px; border-radius: 50%; position: absolute;
-            background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%);
-            border: 3px solid #1e293b; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(to bottom, var(--primary) 50%, #ffffff 50%);
+            border: 3px solid var(--text-main); box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
             overflow: hidden;
         }
-        .gacha-ball::after {
-            content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: #1e293b; transform: translateY(-50%);
-        }
+        .gacha-ball::after { content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: var(--text-main); transform: translateY(-50%); }
 
-        .gacha-base { width: 260px; height: 200px; background: var(--primary); border-radius: 20px; margin-top: -30px; position: relative; z-index: 1; padding-top: 50px; box-sizing: border-box; box-shadow: 0 15px 25px rgba(236,72,153,0.3); }
-        .gacha-dial { width: 70px; height: 70px; background: var(--secondary); border: 6px solid #ca8a04; border-radius: 50%; margin: 0 auto; cursor: pointer; transition: 0.3s; display:flex; justify-content:center; align-items:center; font-size:18px; font-weight:900; }
+        .gacha-base { width: 260px; height: 200px; background: var(--accent); border-radius: 24px; margin-top: -30px; position: relative; z-index: 1; padding-top: 50px; box-sizing: border-box; box-shadow: 0 15px 25px rgba(72, 202, 228, 0.3); }
+        .gacha-dial { width: 70px; height: 70px; background: var(--secondary); border: 6px solid #ffb703; border-radius: 50%; margin: 0 auto; cursor: pointer; transition: 0.3s; display:flex; justify-content:center; align-items:center; font-size:18px; font-weight:900; color: #d4a373;}
         .gacha-dial:hover { transform: scale(1.1); }
         .gacha-dial.spinning { animation: spinDial 0.5s linear infinite; pointer-events: none; }
-        .gacha-slot { width: 90px; height: 60px; background: #1e293b; border-radius: 10px; margin: 20px auto 0; position: relative; }
+        .gacha-slot { width: 90px; height: 60px; background: #03045e; border-radius: 12px; margin: 20px auto 0; position: relative; }
         
         .gacha-capsule { 
             width: 50px; height: 50px; border-radius: 50%; position: absolute; left: 20px; bottom: 5px; opacity: 0; display: none;
-            background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%);
-            border: 3px solid #1e293b; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
-            overflow: hidden;
+            background: linear-gradient(to bottom, var(--primary) 50%, #ffffff 50%);
+            border: 3px solid var(--text-main); box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15); overflow: hidden;
         }
-        .gacha-capsule::after {
-            content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: #1e293b; transform: translateY(-50%);
-        }
+        .gacha-capsule::after { content: ''; position: absolute; top: 50%; left: -5px; right: -5px; height: 3px; background: var(--text-main); transform: translateY(-50%); }
 
         @keyframes spinDial { 100% { transform: rotate(360deg); } }
         @keyframes dropCapsule { 0% { transform: translateY(-50px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         
-        .gacha-result { font-size: 60px; font-weight: 900; color: var(--accent); min-height: 90px; margin-top: 10px; text-shadow: 2px 2px 0px #bfdbfe; transition: 0.3s; transform: scale(0); opacity: 0; }
+        .gacha-result { font-size: 60px; font-weight: 900; color: var(--primary); min-height: 90px; margin-top: 10px; text-shadow: 3px 3px 0px #ffe5ec; transition: 0.3s; transform: scale(0); opacity: 0; }
         .gacha-result.show { transform: scale(1); opacity: 1; }
 
-        /* 2. 자리 배치 탭 (글자 삐져나감 방지) */
-        .desk-grid { display: grid; gap: 16px; justify-content: center; margin-top: 20px; padding: 40px; background: #e0f2fe; border-radius: 24px; border: 4px solid #bae6fd; }
-        .teacher-desk { background: var(--text-main); color: white; padding: 16px 80px; border-radius: 12px; font-weight: 900; font-size: 20px; margin: 0 auto 30px auto; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .desk-grid { display: grid; gap: 16px; justify-content: center; margin-top: 20px; padding: 40px; background: #f8f9fa; border-radius: 32px; border: 4px solid #e9ecef; }
+        .teacher-desk { background: var(--primary); color: white; padding: 16px 80px; border-radius: 20px; font-weight: 900; font-size: 20px; margin: 0 auto 30px auto; display: inline-block; box-shadow: 0 8px 15px rgba(255, 135, 171, 0.2); }
         .desk { 
-            box-sizing: border-box; width: 110px; height: 65px; background: white; border: 3px solid #93c5fd; border-radius: 12px; 
+            box-sizing: border-box; width: 110px; height: 65px; background: white; border: 3px solid #caf0f8; border-radius: 16px; 
             display: flex; justify-content: center; align-items: center; padding: 0 5px;
-            font-size: 18px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; cursor: pointer; user-select: none; position: relative;
+            font-size: 18px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.2s; cursor: pointer; user-select: none; position: relative;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
         }
-        .desk:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.1); border-color: var(--accent); }
-        .desk.empty { background: transparent; border: 3px dashed #93c5fd; color: transparent; box-shadow: none; }
+        .desk:hover { transform: translateY(-4px); box-shadow: 0 10px 15px rgba(72, 202, 228, 0.2); border-color: var(--accent); }
+        .desk.empty { background: transparent; border: 3px dashed #caf0f8; color: transparent; box-shadow: none; }
         .desk.paired { margin-right: 24px; }
-        .desk.selected { border: 4px solid var(--primary); background: #fdf2f8; transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3); }
+        .desk.selected { border: 4px solid var(--primary); background: #fff0f6; transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(255, 135, 171, 0.3); }
 
-        /* 3. 타이머 탭 */
-        .timer-display { font-size: 200px; font-weight: 900; color: var(--text-main); line-height: 1; text-shadow: 5px 5px 0px var(--secondary); margin: 30px 0; font-variant-numeric: tabular-nums; }
-        .timer-quick-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .timer-quick-btns button { font-size: 18px; padding: 10px 20px; border-radius: 20px; }
+        .timer-display { font-size: 200px; font-weight: 900; color: var(--text-main); line-height: 1; text-shadow: 6px 6px 0px var(--secondary); margin: 30px 0; font-variant-numeric: tabular-nums; }
+        .timer-quick-btns { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .timer-quick-btns button { font-size: 18px; padding: 12px 24px; border-radius: 20px; background: white; border: 2px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .timer-quick-btns button:hover { background: var(--secondary); border-color: var(--secondary); transform: translateY(-2px); }
         .timer-main-btns { display: flex; gap: 15px; justify-content: center; }
 
-        /* 4. 당번 배정 탭 */
         .duty-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 30px; text-align: left; }
-        .duty-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.2s; }
-        .duty-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .duty-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 18px 24px; border: 3px solid #f8f9fa; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s; }
+        .duty-item:hover { border-color: var(--secondary); transform: translateY(-3px); }
         .duty-role { font-weight: 900; color: var(--accent); font-size: 16px; }
-        .duty-name { font-weight: 800; color: var(--text-main); font-size: 18px; background: #f1f5f9; padding: 6px 16px; border-radius: 8px; }
+        .duty-name { font-weight: 800; color: var(--text-main); font-size: 18px; background: #fff0f6; padding: 8px 18px; border-radius: 12px; }
 
-        /* 설정 모달 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(74, 78, 105, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--box-bg); padding: 30px; border-radius: 24px; width: 700px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 4px solid var(--border); }
-        .settings-group { background: #fdf2f8; padding: 24px; border-radius: 16px; margin-bottom: 20px; border: 2px solid #fce7f3; text-align: left; }
-        .settings-group h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #fbcfe8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-content { background: var(--box-bg); padding: 35px; border-radius: 32px; width: 700px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 5px solid white; }
+        .settings-group { background: #f8f9fa; padding: 24px; border-radius: 24px; margin-bottom: 20px; border: 2px solid #e9ecef; text-align: left; }
+        .settings-group h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #ffe5ec; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        .add-btn { background: white; border: 2px solid var(--primary); color: var(--primary); font-weight: 900; font-size: 13px; padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .add-btn { background: white; border: 2px solid var(--primary); color: var(--primary); font-weight: 900; font-size: 13px; padding: 8px 18px; border-radius: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(255, 135, 171, 0.1); }
         .add-btn:hover { background: var(--primary); color: white; }
 
         .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .s-tag { background: white; border: 2px solid var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .s-tag.absent { opacity: 0.5; border-color: #cbd5e1; background: #f1f5f9; text-decoration: line-through; }
-        .s-tag button { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; padding: 0; margin-left: 4px; }
+        .s-tag { background: white; border: 2px solid var(--primary); padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .s-tag.absent { opacity: 0.5; border-color: #cbd5e1; background: #f1f5f9; text-decoration: line-through; box-shadow: none; }
+        .s-tag button { background: #fff0f6; border: none; color: var(--primary); cursor: pointer; font-weight: bold; padding: 2px 6px; border-radius: 50%; margin-left: 4px; transition: 0.2s; }
+        .s-tag button:hover { background: var(--primary); color: white; }
 
-        /* 가상 도면 미니 데스크 */
-        .virtual-grid { display: grid; gap: 6px; justify-content: center; margin-top: 15px; background: white; padding: 20px; border-radius: 16px; border: 2px dashed var(--border); }
-        .v-desk { width: 60px; height: 40px; border: 2px solid #93c5fd; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; line-height: 1.2; transition: 0.2s; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; box-sizing: border-box; }
-        .v-desk:hover { background: #e0f2fe; }
+        .virtual-grid { display: grid; gap: 6px; justify-content: center; margin-top: 15px; background: white; padding: 20px; border-radius: 20px; border: 2px dashed #ffc2d1; }
+        .v-desk { width: 60px; height: 40px; border: 2px solid #caf0f8; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; line-height: 1.2; transition: 0.2s; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; box-sizing: border-box; }
+        .v-desk:hover { background: #e0fbfc; }
         .v-desk.paired { margin-right: 12px; }
-        .v-desk.pinned { background: #fbcfe8; border-color: #ec4899; color: #db2777; }
+        .v-desk.pinned { background: #ffe5ec; border-color: #ff87ab; color: #d90429; }
         .v-desk.empty { color: #cbd5e1; }
     </style>
 </head>
 <body>
 
+    <!-- 로그인 모달 -->
     <div id="syncModal" class="modal-overlay active" style="z-index: 3000;">
         <div class="modal-content" style="width: 400px; text-align: center;">
             <h2 style="color:var(--primary); margin-top:0;">classwork 로그인</h2>
-            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">아이디를 입력하면 서버에서 데이터를 동기화합니다.</p>
-            <input type="text" id="loginIdInput" placeholder="사용할 아이디 입력" style="width:100%; margin-bottom:15px; text-align:center;">
-            <button class="btn btn-primary" style="width:100%; font-size:18px;" onclick="handleLogin()">시작하기</button>
+            <p style="color:var(--text-muted); font-size:15px; margin-bottom:24px;">아이디를 입력하면 서버에서 데이터를 동기화합니다.</p>
+            <input type="text" id="loginIdInput" placeholder="아이디 입력" style="width:100%; margin-bottom:20px; text-align:center; font-size: 18px;">
+            <button class="btn btn-primary" style="width:100%; font-size:20px; padding: 16px;" onclick="handleLogin()">시작하기</button>
         </div>
     </div>
 
+    <!-- 가상 도면 고정용 미니 모달 -->
     <div id="pinModal" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="width: 350px; text-align: center;">
             <h3 style="margin-top:0; color:var(--primary);">비밀 자리 지정</h3>
             <select id="pinSelect" style="width:100%; margin: 10px 0;"></select>
-            <div style="margin-bottom: 20px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <span style="font-weight:bold; font-size:14px;">고정 확률:</span>
-                <input type="number" id="pinProb" value="100" min="0" max="100" style="width:70px;"> %
+            <div style="margin-bottom: 24px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <span style="font-weight:bold; font-size:15px;">고정 확률:</span>
+                <input type="number" id="pinProb" value="100" min="0" max="100" style="width:80px;"> %
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn btn-primary" style="flex:1;" onclick="applyPin()">고정하기</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="applyPin()">고정</button>
                 <button class="btn btn-danger" style="flex:1;" onclick="clearPin()">비우기</button>
                 <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('pinModal').classList.remove('active')">취소</button>
             </div>
@@ -165,6 +182,7 @@
     </header>
 
     <main>
+        <!-- 1. 랜덤 뽑기 탭 -->
         <section id="tab-draw" class="section-container active">
             <div class="card">
                 <div class="gacha-machine">
@@ -176,19 +194,18 @@
                         </div>
                     </div>
                 </div>
-
                 <div id="gachaResult" class="gacha-result"></div>
-                <button class="btn btn-primary" id="gachaBtn" onclick="startGacha()" style="font-size: 20px; padding: 16px 40px; border-radius: 30px; margin-top:20px;">뽑기 시작</button>
+                <button class="btn btn-primary" id="gachaBtn" onclick="startGacha()" style="font-size: 22px; padding: 18px 48px; border-radius: 30px; margin-top:20px;">뽑기 시작</button>
             </div>
         </section>
 
+        <!-- 2. 자리 배치 탭 -->
         <section id="tab-seat" class="section-container">
             <div class="card" style="background: white;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0; color: var(--primary);">자리 배치</h2>
                     <button class="btn btn-blue" onclick="generateSeats()">무작위 섞기</button>
                 </div>
-                
                 <div style="text-align: center;">
                     <div class="teacher-desk">교탁</div>
                     <div class="desk-grid" id="deskGridContainer"></div>
@@ -196,33 +213,36 @@
             </div>
         </section>
 
+        <!-- 3. 타이머 탭 -->
         <section id="tab-timer" class="section-container">
             <div class="card">
                 <div class="timer-quick-btns">
                     <button class="btn btn-secondary" onclick="addTime(-60)">- 1분</button>
                     <button class="btn btn-secondary" onclick="addTime(-10)">- 10초</button>
-                    <button class="btn btn-secondary" style="background: #bae6fd;" onclick="addTime(10)">+ 10초</button>
-                    <button class="btn btn-secondary" style="background: #bae6fd;" onclick="addTime(60)">+ 1분</button>
+                    <button class="btn btn-secondary" style="background: var(--secondary); color: var(--text-main);" onclick="addTime(10)">+ 10초</button>
+                    <button class="btn btn-secondary" style="background: var(--secondary); color: var(--text-main);" onclick="addTime(60)">+ 1분</button>
                 </div>
                 <div class="timer-display" id="timerDisplay">05:00</div>
                 <div class="timer-main-btns">
-                    <button class="btn btn-primary" id="timerStartBtn" onclick="toggleTimer()" style="font-size: 22px; padding: 16px 40px; border-radius: 30px;">시작</button>
-                    <button class="btn btn-secondary" onclick="resetTimer()" style="font-size: 22px; padding: 16px 40px; border-radius: 30px; background: #e2e8f0;">초기화</button>
+                    <button class="btn btn-primary" id="timerStartBtn" onclick="toggleTimer()" style="font-size: 24px; padding: 18px 50px; border-radius: 30px;">시작</button>
+                    <button class="btn btn-secondary" onclick="resetTimer()" style="font-size: 24px; padding: 18px 50px; border-radius: 30px;">초기화</button>
                 </div>
             </div>
         </section>
 
+        <!-- 4. 당번 배정 탭 -->
         <section id="tab-duty" class="section-container">
             <div class="card">
                 <h2 style="margin:0 0 10px 0; color:var(--primary);">당번 배정</h2>
-                <p style="color:var(--text-muted); margin-bottom: 20px;">설정창에서 추가해둔 역할이 배정됩니다.</p>
+                <p style="color:var(--text-muted); margin-bottom: 24px;">설정창에서 추가해둔 역할이 무작위로 배정됩니다.</p>
                 
-                <button class="btn btn-primary" style="font-size: 18px; padding: 14px 40px; border-radius: 30px;" onclick="assignDuties()">역할 배정</button>
+                <button class="btn btn-primary" style="font-size: 20px; padding: 16px 48px; border-radius: 30px;" onclick="assignDuties()">역할 배정</button>
                 <div class="duty-container" id="dutyGrid"></div>
             </div>
         </section>
     </main>
 
+    <!-- 통합 설정 모달 -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-content">
             <h2 style="margin-top: 0; color: var(--text-main); font-size: 24px; text-align: center; border-bottom: 3px solid var(--border); padding-bottom: 15px;">통합 설정창</h2>
@@ -240,53 +260,39 @@
             <div class="settings-group">
                 <h3>뽑기 설정</h3>
                 <label style="display: flex; align-items: center; gap: 8px; font-weight:bold; cursor:pointer;">
-                    <input type="checkbox" id="cfgRemoveDrawn" style="width:18px; height:18px;"> 뽑힌 사람은 명단에서 제외 처리하기
+                    <input type="checkbox" id="cfgRemoveDrawn" style="width:20px; height:20px; accent-color: var(--primary);"> 뽑힌 사람은 명단에서 제외 처리하기
                 </label>
             </div>
 
             <div class="settings-group" style="margin-bottom: 0;">
                 <h3>자리 배치 설정</h3>
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div>칸: <input type="number" id="cfgCols" value="5" min="2" max="10" style="width:70px;" onchange="renderVirtualGrid()"></div>
-                    <div>줄: <input type="number" id="cfgRows" value="5" min="2" max="10" style="width:70px;" onchange="renderVirtualGrid()"></div>
+                    <div>가로(칸): <input type="number" id="cfgCols" value="5" min="2" max="10" style="width:80px;" onchange="renderVirtualGrid()"></div>
+                    <div>세로(줄): <input type="number" id="cfgRows" value="5" min="2" max="10" style="width:80px;" onchange="renderVirtualGrid()"></div>
                 </div>
                 <label style="display: flex; align-items: center; gap: 8px; font-weight:bold; cursor:pointer; margin-bottom: 15px;">
-                    <input type="checkbox" id="cfgPaired" checked style="width:18px; height:18px;" onchange="renderVirtualGrid()"> 짝꿍 모드 적용
+                    <input type="checkbox" id="cfgPaired" checked style="width:20px; height:20px; accent-color: var(--primary);" onchange="renderVirtualGrid()"> 짝꿍 모드 (두 칸씩 띄어 앉기)
                 </label>
 
-                <h4 style="margin: 0; color: var(--accent); font-size: 15px;">가상 도면 (비밀 고정)</h4>
+                <h4 style="margin: 0; color: var(--accent); font-size: 16px;">가상 도면 (비밀 자리 고정)</h4>
                 <div class="virtual-grid" id="virtualDeskGrid"></div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 25px;">
-                <button class="btn btn-primary" style="flex: 2; font-size: 18px;" onclick="saveSettings()">설정 저장 및 닫기</button>
+                <button class="btn btn-primary" style="flex: 2; font-size: 18px; padding: 16px;" onclick="saveSettings()">설정 저장 및 닫기</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 수파베이스 키 적용 완료
+        // 🚨 여기에 아까 확인한 진짜 마스터 열쇠와 URL을 꼭 다시 넣어주세요!
         const SUPABASE_URL = 'https://jhiycxwcbsaafmllhooz.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoaXljeHdjYnNhYWZtbGxob296Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzQ3NjEsImV4cCI6MjA5NjI1MDc2MX0.t3FuoD4dAM1A-tTnYyJC3IN-ss9cAoXHCoI-KVpGu88';
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        
         let currentUserId = localStorage.getItem('classwork_userid') || '';
+        let AppState = { students: [], duties: ["칠판 지우기", "우유 당번", "분리수거", "복도 쓸기", "문단속"], settings: { removeDrawn: false, cols: 5, rows: 5, paired: true }, pins: {}, currentLayout: [] };
 
-        let AppState = {
-            students: [],
-            duties: ["칠판 지우기", "교탁 정리", "분리수거", "복도 쓸기", "문단속"],
-            settings: { removeDrawn: false, cols: 5, rows: 5, paired: true },
-            pins: {}, // { seatIndex: { std: '이름', prob: 100 } }
-            currentLayout: []
-        };
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
-            });
-        }
-
-        // 전체 초기화 함수
         function initApp() {
             initGachaBalls();
             renderDeskGrid();
@@ -296,71 +302,50 @@
             renderVirtualGrid();
         }
 
-        // 서버 데이터 불러오기
         async function fetchServerData() {
-            if (!currentUserId) return;
+            if(!currentUserId) return;
             try {
                 const { data, error } = await client.from('classwork_data').select('app_data').eq('id', currentUserId).single();
-                if (data && data.app_data) {
-                    AppState = data.app_data;
-                    // 데이터 꼬임 방지 (구버전 데이터 처리)
-                    for(let key in AppState.pins) {
-                        if(typeof AppState.pins[key] === 'string') { AppState.pins = {}; break; }
-                    }
-                } else if (error && error.code === 'PGRST116') {
-                    // 새 유저 생성
-                    await client.from('classwork_data').insert([{ id: currentUserId, app_data: AppState }]);
-                } else if (error) {
-                    console.error("불러오기 에러:", error);
-                }
-            } catch (err) { console.error(err); }
+                if (data) { 
+                    AppState = data.app_data; 
+                    for(let key in AppState.pins) { if(typeof AppState.pins[key] === 'string') { AppState.pins = {}; break; } }
+                } 
+                else { await client.from('classwork_data').insert([{ id: currentUserId, app_data: AppState }]); }
+            } catch (err) { console.error("서버 데이터 불러오기 실패", err); }
         }
 
-        // 서버 및 로컬 데이터 저장
         async function saveData() {
             localStorage.setItem('toolbox_students', JSON.stringify(AppState.students));
-            localStorage.setItem('toolbox_duties', JSON.stringify(AppState.duties));
-            localStorage.setItem('toolbox_settings', JSON.stringify(AppState.settings));
-            localStorage.setItem('toolbox_pins', JSON.stringify(AppState.pins));
-
             if (!currentUserId) return;
-            try {
-                await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState });
-            } catch (err) { console.error("서버 저장 에러:", err); }
+            try { await client.from('classwork_data').upsert({ id: currentUserId, app_data: AppState }); } 
+            catch (err) { console.error("서버 저장 실패", err); }
         }
 
-        // 로그인 버튼 클릭 시 연결 (window 영역 등록으로 클릭 에러 완벽 해결)
         window.handleLogin = async function() {
             const input = document.getElementById('loginIdInput');
             const id = input ? input.value.trim() : "";
-            
             if (!id) return alert("아이디를 입력해주세요.");
-            
             currentUserId = id;
             localStorage.setItem('classwork_userid', id);
-            
-            const modal = document.getElementById('syncModal');
-            if(modal) modal.classList.remove('active');
-            
+            document.getElementById('syncModal').classList.remove('active');
             await fetchServerData();
             initApp();
         };
 
-        // 폭죽 이펙트
         function triggerConfetti() {
-            const colors = ['#ec4899', '#3b82f6', '#10b981', '#facc15', '#a855f7'];
+            const colors = ['#ff87ab', '#48cae4', '#ffe6a7', '#ffb703', '#9d4edd'];
             for(let i=0; i<40; i++) {
                 const el = document.createElement('div');
                 el.style.position = 'fixed'; el.style.left = Math.random() * 100 + 'vw'; el.style.top = '-20px';
-                el.style.width = '12px'; el.style.height = '12px';
+                el.style.width = '14px'; el.style.height = '14px';
                 el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+                el.style.borderRadius = Math.random() > 0.5 ? '50%' : '6px';
                 el.style.pointerEvents = 'none'; el.style.zIndex = '99999';
                 document.body.appendChild(el);
                 const duration = Math.random() * 1.5 + 1;
                 el.animate([
-                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
-                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                    { transform: `translate3d(0,0,0) rotate(0deg) scale(1)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg) scale(0)`, opacity: 0 }
                 ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', forwards: true });
                 setTimeout(() => el.remove(), duration * 1000);
             }
@@ -379,10 +364,7 @@
             document.getElementById('cfgCols').value = AppState.settings.cols;
             document.getElementById('cfgRows').value = AppState.settings.rows;
             document.getElementById('cfgPaired').checked = AppState.settings.paired;
-            
-            renderStudentTags();
-            renderDutyTags();
-            renderVirtualGrid();
+            renderStudentTags(); renderDutyTags(); renderVirtualGrid();
             document.getElementById('settingsModal').classList.add('active');
         }
 
@@ -440,23 +422,15 @@
             });
         }
 
-        // --- 1. 캡슐 뽑기 ---
         function initGachaBalls() {
             const dome = document.getElementById('gachaDome'); dome.innerHTML = '';
             const count = Math.min(getActiveStudents().length, 30);
-            
-            const cols = 6;
-            const spacingX = 35;
-            const spacingY = 30;
-            const startX = (240 - (cols * spacingX)) / 2 + 10;
-            const startY = 175;
-
+            const cols = 6; const spacingX = 35; const spacingY = 30;
+            const startX = (240 - (cols * spacingX)) / 2 + 10; const startY = 175;
             for(let i=0; i<count; i++) {
                 const ball = document.createElement('div'); ball.className = 'gacha-ball';
-                const row = Math.floor(i / cols);
-                const col = i % cols;
+                const row = Math.floor(i / cols); const col = i % cols;
                 const offsetX = (row % 2 === 1) ? spacingX / 2 : 0;
-                
                 ball.style.left = (startX + col * spacingX + offsetX) + 'px';
                 ball.style.top = (startY - row * spacingY) + 'px';
                 dome.appendChild(ball);
@@ -484,7 +458,6 @@
             setTimeout(() => {
                 document.getElementById('gachaDial').classList.remove('spinning');
                 cap.style.display = 'block'; cap.style.animation = 'dropCapsule 0.4s forwards';
-                
                 balls.forEach(b => b.style.transform = 'translate(0, 0)');
                 
                 setTimeout(() => {
@@ -502,7 +475,6 @@
             }, 800);
         };
 
-        // --- 선생님 전용 가상 도면 ---
         let currentPinTargetIdx = null;
 
         function renderVirtualGrid() {
@@ -527,7 +499,6 @@
                     div.classList.add('empty');
                     div.innerText = '+';
                 }
-
                 div.onclick = () => openPinModal(i);
                 container.appendChild(div);
             }
@@ -560,7 +531,6 @@
             saveData(); document.getElementById('pinModal').classList.remove('active'); renderVirtualGrid();
         };
 
-        // --- 2. 진짜 자리 배치 ---
         let selectedDeskIdx = null; 
 
         function renderDeskGrid() {
@@ -580,16 +550,12 @@
                 if(selectedDeskIdx === i) className += ' selected';
                 
                 div.className = className;
-                if(AppState.currentLayout[i]) {
-                    div.innerText = AppState.currentLayout[i];
-                } else {
-                    div.classList.add('empty');
-                }
+                if(AppState.currentLayout[i]) { div.innerText = AppState.currentLayout[i]; } 
+                else { div.classList.add('empty'); }
                 
                 div.onclick = () => {
-                    if (selectedDeskIdx === null) {
-                        selectedDeskIdx = i; renderDeskGrid();
-                    } else {
+                    if (selectedDeskIdx === null) { selectedDeskIdx = i; renderDeskGrid(); } 
+                    else {
                         if (selectedDeskIdx !== i) {
                             const temp = AppState.currentLayout[selectedDeskIdx];
                             AppState.currentLayout[selectedDeskIdx] = AppState.currentLayout[i];
@@ -632,7 +598,6 @@
             let emptyIndices = [];
             for(let i=0; i<totalSeats; i++) { if(!layout[i]) emptyIndices.push(i); }
             emptyIndices = shuffleArray(emptyIndices);
-            
             for(let i=0; i<remaining.length; i++) { layout[emptyIndices[i]] = remaining[i]; }
 
             selectedDeskIdx = null; AppState.currentLayout = layout;
@@ -642,14 +607,14 @@
             setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
         };
 
-        // --- 3. 타이머 ---
+        // --- 3. 타이머 (버튼 사라짐 완벽 해결!) ---
         let timerInterval; let timeLeft = 300; let timerRunning = false;
 
         function updateTimerDisplay() {
             const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
             const s = (timeLeft % 60).toString().padStart(2, '0');
             document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-            document.getElementById('timerDisplay').style.color = (timeLeft <= 60 && timeLeft > 0) ? 'var(--primary)' : 'var(--text-main)';
+            document.getElementById('timerDisplay').style.color = (timeLeft <= 60 && timeLeft > 0) ? 'var(--danger)' : 'var(--text-main)';
         }
 
         window.addTime = function(seconds) { timeLeft = Math.max(0, timeLeft + seconds); updateTimerDisplay(); };
@@ -658,29 +623,40 @@
             const btn = document.getElementById('timerStartBtn');
             if (timerRunning) {
                 clearInterval(timerInterval); timerRunning = false;
-                btn.innerText = "계속"; btn.classList.replace('btn-danger', 'btn-primary');
+                btn.innerText = "계속"; 
+                // 일시정지 시 원래 파스텔 핑크색으로 복구!
+                btn.style.background = 'var(--primary)'; 
             } else {
                 if(timeLeft <= 0) return;
-                timerRunning = true; btn.innerText = "일시정지"; btn.style.background = 'var(--danger)';
+                timerRunning = true; 
+                btn.innerText = "일시정지"; 
+                // 작동 중일 때는 완벽하게 정의된 빨간색(--danger)으로 변경!
+                btn.style.background = 'var(--danger)'; 
                 
                 timerInterval = setInterval(() => {
                     timeLeft--; updateTimerDisplay();
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval); timerRunning = false;
-                        btn.innerText = "시작"; btn.style.background = 'var(--primary)';
+                        btn.innerText = "시작"; 
+                        btn.style.background = 'var(--primary)'; 
                         
-                        document.body.style.backgroundColor = '#fbcfe8';
+                        document.body.style.backgroundColor = '#ffc2d1';
                         setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 500);
-                        setTimeout(() => document.body.style.backgroundColor = '#fbcfe8', 1000);
+                        setTimeout(() => document.body.style.backgroundColor = '#ffc2d1', 1000);
                         setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 1500);
                         triggerConfetti();
                     }
                 }, 1000);
             }
         };
-        window.resetTimer = function() { clearInterval(timerInterval); timerRunning = false; timeLeft = 300; document.getElementById('timerStartBtn').innerText = "시작"; document.getElementById('timerStartBtn').style.background = 'var(--primary)'; updateTimerDisplay(); };
+        window.resetTimer = function() { 
+            clearInterval(timerInterval); timerRunning = false; timeLeft = 300; 
+            const btn = document.getElementById('timerStartBtn');
+            btn.innerText = "시작"; 
+            btn.style.background = 'var(--primary)'; 
+            updateTimerDisplay(); 
+        };
 
-        // --- 4. 당번 배정 ---
         window.assignDuties = function() {
             const roles = AppState.duties;
             const stds = shuffleArray(getActiveStudents());
@@ -700,7 +676,6 @@
             triggerConfetti();
         };
 
-        // 앱 시작
         window.onload = async () => {
             if(currentUserId) {
                 document.getElementById('syncModal').classList.remove('active');
