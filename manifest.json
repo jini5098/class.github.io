@@ -1,13 +1,18 @@
 {
-  "name": "housework",
-  "short_name": "housework",
+  "name": "classwork",
+  "short_name": "classwork",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#fdf4ff",
-  "theme_color": "#ec4899",
+  "background_color": "#fff0f6",
+  "theme_color": "#ff87ab",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/25/25694.png",
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -6,6 +6,10 @@
     <title>classwork</title>
     
     <link rel="manifest" href="manifest.json">
+    
+    <link rel="icon" href="./icon.png">
+    <link rel="apple-touch-icon" href="./icon.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -21,7 +25,7 @@
             --text-muted: #9fa0b4;
             --border: #ffc2d1;
             --box-bg: rgba(255, 255, 255, 0.95); 
-            --danger: #ff4d6d; /* 타이머 오류를 막아주는 진짜 빨간색 변수! */
+            --danger: #ff4d6d; 
         }
         
         /* 은은한 도트 패턴 배경 */
@@ -143,7 +147,6 @@
 </head>
 <body>
 
-    <!-- 로그인 모달 -->
     <div id="syncModal" class="modal-overlay active" style="z-index: 3000;">
         <div class="modal-content" style="width: 400px; text-align: center;">
             <h2 style="color:var(--primary); margin-top:0;">classwork 로그인</h2>
@@ -153,7 +156,6 @@
         </div>
     </div>
 
-    <!-- 가상 도면 고정용 미니 모달 -->
     <div id="pinModal" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="width: 350px; text-align: center;">
             <h3 style="margin-top:0; color:var(--primary);">비밀 자리 지정</h3>
@@ -182,7 +184,6 @@
     </header>
 
     <main>
-        <!-- 1. 랜덤 뽑기 탭 -->
         <section id="tab-draw" class="section-container active">
             <div class="card">
                 <div class="gacha-machine">
@@ -199,7 +200,6 @@
             </div>
         </section>
 
-        <!-- 2. 자리 배치 탭 -->
         <section id="tab-seat" class="section-container">
             <div class="card" style="background: white;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -213,7 +213,6 @@
             </div>
         </section>
 
-        <!-- 3. 타이머 탭 -->
         <section id="tab-timer" class="section-container">
             <div class="card">
                 <div class="timer-quick-btns">
@@ -230,7 +229,6 @@
             </div>
         </section>
 
-        <!-- 4. 당번 배정 탭 -->
         <section id="tab-duty" class="section-container">
             <div class="card">
                 <h2 style="margin:0 0 10px 0; color:var(--primary);">당번 배정</h2>
@@ -242,7 +240,6 @@
         </section>
     </main>
 
-    <!-- 통합 설정 모달 -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-content">
             <h2 style="margin-top: 0; color: var(--text-main); font-size: 24px; text-align: center; border-bottom: 3px solid var(--border); padding-bottom: 15px;">통합 설정창</h2>
@@ -285,13 +282,14 @@
     </div>
 
     <script>
-        // 🚨 여기에 아까 확인한 진짜 마스터 열쇠와 URL을 꼭 다시 넣어주세요!
+        // 🚨 여기에 아까 찾은 마스터 열쇠를 붙여넣으세요!
         const SUPABASE_URL = 'https://jhiycxwcbsaafmllhooz.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoaXljeHdjYnNhYWZtbGxob296Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzQ3NjEsImV4cCI6MjA5NjI1MDc2MX0.t3FuoD4dAM1A-tTnYyJC3IN-ss9cAoXHCoI-KVpGu88';
+        
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentUserId = localStorage.getItem('classwork_userid') || '';
-        let AppState = { students: [], duties: ["칠판 지우기", "우유 당번", "분리수거", "복도 쓸기", "문단속"], settings: { removeDrawn: false, cols: 5, rows: 5, paired: true }, pins: {}, currentLayout: [] };
+        let AppState = { students: [], duties: ["청소", "정리"], settings: { removeDrawn: false, cols: 5, rows: 5, paired: true }, pins: {}, currentLayout: [] };
 
         function initApp() {
             initGachaBalls();
@@ -607,7 +605,6 @@
             setTimeout(() => { renderDeskGrid(); document.getElementById('deskGridContainer').style.opacity = '1'; triggerConfetti(); }, 300);
         };
 
-        // --- 3. 타이머 (버튼 사라짐 완벽 해결!) ---
         let timerInterval; let timeLeft = 300; let timerRunning = false;
 
         function updateTimerDisplay() {
@@ -624,13 +621,11 @@
             if (timerRunning) {
                 clearInterval(timerInterval); timerRunning = false;
                 btn.innerText = "계속"; 
-                // 일시정지 시 원래 파스텔 핑크색으로 복구!
                 btn.style.background = 'var(--primary)'; 
             } else {
                 if(timeLeft <= 0) return;
                 timerRunning = true; 
                 btn.innerText = "일시정지"; 
-                // 작동 중일 때는 완벽하게 정의된 빨간색(--danger)으로 변경!
                 btn.style.background = 'var(--danger)'; 
                 
                 timerInterval = setInterval(() => {
